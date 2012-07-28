@@ -117,9 +117,7 @@ span.jsopenwin {
   margin:0 0 4px 0;
   padding:4px 4px 4px 10px;
   border:1px solid #CBCBCB;
-  -webkit-border-radius:4px;
-  -moz-border-radius:4px;
-  -border-radius:4px;
+  border-radius:4px;
   }
 .rexseo ul>li>strong:first-child {
   font-size:14px;
@@ -170,8 +168,7 @@ a.help-icon {
   font-weight:normal;
   text-decoration:none !important;
   padding:0 4px 0 4px !important;
-  -moz-border-radius:5px !important;
-  -webkit-border-radius:5px !important;
+  border-radius:5px !important;
   }
 a.help-icon:hover {
   background:#3C9ED0 !important;
@@ -184,8 +181,7 @@ a.help-icon:hover {
   border:1px solid silver;
   border-right:1px solid gray;
   border-bottom:1px solid gray;
-  -moz-border-radius:3px;
-  -webkit-border-radius:3px;
+  border-radius:3px;
   }
 ul#rexseo-redirect-list {
   margin-left:155px;
