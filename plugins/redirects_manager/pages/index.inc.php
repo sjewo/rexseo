@@ -57,7 +57,10 @@ if($func=='batch-submit')
 
 // INCLUDES
 ////////////////////////////////////////////////////////////////////////////////
-//require_once $myroot.'/classes/class.redirects_manager.inc.php';
+require_once $myroot.'../../functions/function.rexseo_helpers.inc.php';
+require_once $myroot.'../../classes/class.rexseo_select.inc.php';
+#require_once $myroot.'../../classes/class.rexseo_rewrite.inc.php';
+
 
 // BACKEND CSS
 ////////////////////////////////////////////////////////////////////////////////
@@ -162,6 +165,100 @@ if($func == '' || $func=='batch-submit')
   $list->show();
 
   echo '</div>';
+
+// SETTINGS FORM
+////////////////////////////////////////////////////////////////////////////////
+$default_redirect_expire = !isset($REX['ADDON'][$myself]['settings']['default_redirect_expire'])
+                         ? 60
+                         : $REX['ADDON'][$myself]['settings']['default_redirect_expire'];
+
+$auto_redirects = !isset($REX['ADDON'][$myself]['settings']['auto_redirects'])
+                ? ''
+                : $REX['ADDON'][$myself]['settings']['auto_redirects'];
+
+$auto_redirects_select = new rexseo_select();
+$auto_redirects_select->setSize(1);
+$auto_redirects_select->setName('auto_redirects');
+$auto_redirects_select->addOption('Inaktiv',0);
+$auto_redirects_select->addOption('Vollautomatisch (Redirects anlegen & aktivieren)',1);
+$auto_redirects_select->addOption('Halbautomatisch (Redirects anlegen aber inaktiv setzen)',2);
+$auto_redirects_select->setSelected($auto_redirects);
+
+
+
+echo '
+<div class="rex-addon-output">
+  <div class="rex-form">
+
+  <form action="index.php" method="post">
+    <input type="hidden" name="page"                   value="rexseo" />
+    <input type="hidden" name="subpage"                value="redirect_manager" />
+    <input type="hidden" name="func"                   value="update_redirect_settings" />
+
+      <fieldset class="rex-form-col-1">
+        <legend style="font-size: 1.333em;color: #336699;">Settings</legend>
+        <div class="rex-form-wrapper">
+
+          <div class="rex-form-row">
+            <p class="rex-form-col-a rex-form-select">
+              <label for="auto_redirects" class="helptopic">Auto-Redirects:</label>
+                '.$auto_redirects_select->get().'
+            </p>
+          </div><!-- /rex-form-row -->
+
+
+          <div class="rex-form-row">
+            <p class="rex-form-col-a rex-form-text">
+              <label for="default_redirect_expire" class="helptopic">Default Expire:</label>
+              <input id="default_redirect_expire" class="rex-form-text" style="width:50px;" type="text" name="default_redirect_expire" value="'.stripslashes($default_redirect_expire).'" /> Tage
+            </p>
+          </div><!-- /rex-form-row -->
+
+        </div><!-- /rex-form-wrapper -->
+      </fieldset>
+
+
+      <fieldset class="rex-form-col-1">
+        <legend>&nbsp;</legend>
+        <div class="rex-form-wrapper">
+
+          <div class="rex-form-row rex-form-element-v2">
+            <p class="rex-form-submit">
+              <input class="rex-form-submit" type="submit" id="sendit" name="sendit" value="Einstellungen speichern" />
+            </p>
+          </div><!-- /rex-form-row -->
+
+        </div><!-- /rex-form-wrapper -->
+      </fieldset>
+
+  </form>
+  </div><!-- /rex-addon-output -->
+</div><!-- /rex-form -->
+
+<script type="text/javascript">
+<!--
+jQuery(function($) {
+
+  jQuery(document).ready(function() {
+    if($("#rewrite_params").val()!=1)
+    {
+      $("#params_starter_span").hide();
+      $("#params_starter").hide();
+    }
+
+    // AUTOMATIC HELP TOPIC LINK
+    $(".helptopic").each(function() {
+    var p = $(this).html().split(":");
+    p[1] = \' <a class="help-icon" title="Hilfe zum Thema anzeigen" href="index.php?page=rexseo&subpage=help&chapter=settings&highlight=\'+escape(p[0]+\':\')+\'">?</a>\'+p[1];
+    $(this).html(p.join(":"));
+    });
+  });
+
+});
+//-->
+</script>
+
+';
 
 // BATCH SUBMIT FORM
 ////////////////////////////////////////////////////////////////////////////////
