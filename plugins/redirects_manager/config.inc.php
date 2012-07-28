@@ -28,9 +28,9 @@ $REX['ADDON']['supportpage'][$myself] = 'forum.redaxo.de';
 // DYN SETTINGS
 ////////////////////////////////////////////////////////////////////////////////
 // --- DYN
-$REX["ADDON"]["redirect_manager"]["settings"] = array (
-  'version' => $REX['ADDON']['version'][$myself],
+$REX["ADDON"]["redirects_manager"]["settings"] = array (
   'auto_redirects' => 0,
+  'default_redirect_expire' => 60,
 );
 // --- /DYN
 
@@ -63,7 +63,7 @@ if ($REX['REDAXO'])
 
 // AUTO CREATE REDIRECTS FROM CHANGED URLS
 ////////////////////////////////////////////////////////////////////////////////
-if ($REX['REDAXO'] && $REX['MOD_REWRITE'] !== false && $REX['ADDON']['redirect_manager']['settings']['auto_redirects']!=0)
+if ($REX['REDAXO'] && $REX['MOD_REWRITE'] !== false && $REX['ADDON']['redirects_manager']['settings']['auto_redirects']!=0)
 {
   rex_register_extension('REXSEO_PATHLIST_BEFORE_REBUILD','rexseo_remember_prior_pathlist');
   function rexseo_remember_prior_pathlist($params)
