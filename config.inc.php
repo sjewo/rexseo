@@ -86,28 +86,6 @@ Disallow:',
 // --- /DYN
 
 
-// MAIN
-////////////////////////////////////////////////////////////////////////////////
-require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_meta.inc.php';
-
-if ($REX['MOD_REWRITE'] !== false)
-{
-  // REWRITE
-  $levenshtein    = (bool) $REX['ADDON'][$myself]['settings']['levenshtein'];
-  $rewrite_params = (bool) $REX['ADDON'][$myself]['settings']['rewrite_params'];
-  require_once $myroot.'/classes/class.rexseo_rewrite.inc.php';
-  $rewriter = new RexseoRewrite($levenshtein,$rewrite_params);
-  $rewriter->resolve();
-  rex_register_extension('URL_REWRITE', array ($rewriter, 'rewrite'));
-
-  // FIX TEXTILE/TINY LINKS @ REX < 4.3
-  if(intval($REX['VERSION']) == 4 && intval($REX['SUBVERSION']) < 3)
-  {
-    rex_register_extension('GENERATE_FILTER', 'rexseo_fix_42x_links');
-  }
-}
-
-
 // RUN CACHER ON DB CHANGES
 ////////////////////////////////////////////////////////////////////////////////
 if ($REX['REDAXO'])
@@ -158,12 +136,35 @@ if ($REX['REDAXO'] && $REX['MOD_REWRITE'] !== false && $REX['ADDON'][$myself]['s
 }
 
 
-// INCLUDE CONTROLLER AFTER ADDONS INLCUDED
+// RUN ON ADDONS INLCUDED
 ////////////////////////////////////////////////////////////////////////////////
-rex_register_extension('ADDONS_INCLUDED','rexseo_controller_include');
-function rexseo_controller_include($params)
+rex_register_extension('ADDONS_INCLUDED','rexseo_init');
+
+function rexseo_init($params)
 {
-  global $REX;
+  global $REX,$myroot,$myself;
+
+  // MAIN
+  require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_meta.inc.php';
+
+  if ($REX['MOD_REWRITE'] !== false)
+  {
+    // REWRITE
+    $levenshtein    = (bool) $REX['ADDON'][$myself]['settings']['levenshtein'];
+    $rewrite_params = (bool) $REX['ADDON'][$myself]['settings']['rewrite_params'];
+    require_once $myroot.'/classes/class.rexseo_rewrite.inc.php';
+    $rewriter = new RexseoRewrite($levenshtein,$rewrite_params);
+    $rewriter->resolve();
+    rex_register_extension('URL_REWRITE', array ($rewriter, 'rewrite'));
+
+    // FIX TEXTILE/TINY LINKS @ REX < 4.3
+    if(intval($REX['VERSION']) == 4 && intval($REX['SUBVERSION']) < 3)
+    {
+      rex_register_extension('GENERATE_FILTER', 'rexseo_fix_42x_links');
+    }
+  }
+
+  // CONTROLLER
   include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
 }
 
