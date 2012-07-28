@@ -87,7 +87,7 @@ class RexseoRewrite
 
 
       // IF NON_REWRITTEN URLS ALLOWED -> USE ARTICLE_ID FROM REQUEST
-      if ($allow_articleid != 0 && isset($_GET['article_id']))
+      if ($allow_articleid != 0 && rex_get('article_id', 'int') > 0)
       {
         if($allow_articleid == 1)
         {
