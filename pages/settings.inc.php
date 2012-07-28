@@ -81,8 +81,9 @@ if ($func == 'update')
   $config = $REX['INCLUDE_PATH'].'/addons/'.$myself.'/config.inc.php';
   rex_replace_dynamic_contents($config, $DYN);
   rex_replace_dynamic_contents($backup, $DYN);
-  rexseo_purgeCacheFiles();
   echo rex_info('Einstellungen wurden gespeichert.');
+  rexseo_generate_pathlist('');
+  echo rex_info('Pathlist wurden aktuallisiert.');
 }
 
 
