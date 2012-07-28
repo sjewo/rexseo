@@ -50,7 +50,9 @@ $CAST = array (
 
 // RUN REDIRECTS CACHER
 ////////////////////////////////////////////////////////////////////////////////
-rexseo_htaccess_update_redirects();
+if(OOPlugin::isAvailable('rexseo','redirects_manager')){
+  redirects_manager::updateHtaccess();
+}
 
 
 // CHECK METAINFO
