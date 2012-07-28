@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.4.285 dev
+ * @version 1.5.alpha 28.7
  */
 
 // ADDON PARAMS
@@ -22,8 +22,8 @@ $myroot = $REX['INCLUDE_PATH'].'/addons/'.$myself;
 $REX['ADDON'][$myself]['VERSION'] = array
 (
 'VERSION'      => 1,
-'MINORVERSION' => 4,
-'SUBVERSION'   => '285 dev',
+'MINORVERSION' => 5,
+'SUBVERSION'   => 'alpha 28.7',
 );
 
 $REX['ADDON']['rxid'][$myself]        = '750';
@@ -115,6 +115,7 @@ function rexseo_init($params)
 
   // CONTROLLER
   include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
+
 }
 
 
