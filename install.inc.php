@@ -21,7 +21,7 @@ $myroot            = $REX['INCLUDE_PATH'].'/addons/'.$myself;
 
 $minimum_REX       = '4.3.0';
 $minimum_PHP       = 5;
-$required_addons   = array('textile','metainfo','cronjob');
+$required_addons   = array('textile','metainfo');
 $disable_addons    = array('url_rewrite');
 $htaccess_search   = array('x-mapp-php','php-cgi_wrapper');
 
@@ -69,38 +69,6 @@ foreach($disable_addons as $a)
   {
     $error[] = 'Addon "'.$a.'" muß erst deinstalliert werden.  <span style="float:right;">[ <a href="index.php?page=addon&addonname='.$a.'&uninstall=1">'.$a.' de-installieren</a> ]</span>';
   }
-}
-
-
-// SETUP REDIRECTS TABLE
-////////////////////////////////////////////////////////////////////////////////
-$db = new rex_sql;
-$qry = 'CREATE TABLE IF NOT EXISTS `'.$REX['TABLE_PREFIX'].'rexseo_redirects` (
-  `id` int(4) NOT NULL AUTO_INCREMENT,
-  `createdate` int(11) NOT NULL,
-  `updatedate` int(11) NOT NULL,
-  `expiredate` int(11) NOT NULL,
-  `creator` varchar(32) NOT NULL,
-  `status` int(1) NOT NULL DEFAULT \'1\',
-  `from_url` text NOT NULL,
-  `to_article_id` int(4) NOT NULL,
-  `to_clang` tinyint(2) NOT NULL,
-  `http_status` int(3) NOT NULL DEFAULT \'301\',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;';
-if(!$db->setQuery($qry))
-  $error[] = 'Tabelle für RexSEO Redirects konnte nicht angelegt werden.';
-
-
-// INSTALL REXSEO REDIRECTS CRONJOB
-////////////////////////////////////////////////////////////////////////////////
-$check = 'SELECT * from `'.$REX['TABLE_PREFIX'].'630_cronjobs` WHERE `createuser`=\'rexseo\'';
-$db->setQuery($check);
-if($db->getRows()==0)
-{
-  $install = 'INSERT INTO `'.$REX['TABLE_PREFIX'].'630_cronjobs` (`id`, `name`, `type`, `parameters`, `interval`, `nexttime`, `environment`, `status`, `createdate`, `createuser`, `updatedate`, `updateuser`) VALUES
-  (\'\', \'RexSEO Redirect Expire\', \'rex_cronjob_phpcode\', \'a:1:{s:24:"rex_cronjob_phpcode_code";s:80:"if (OOAddon::isAvailable(\'\'rexseo\'\'))\r\n{\r\n  rexseo_htaccess_update_redirects();\r\n}";}\', \'|1|d|\', 0, \'|0|1|\', 1, CURDATE(), \'rexseo\', CURDATE(), \'rexseo\');';
-  $db->setQuery($install);
 }
 
 
