@@ -54,7 +54,6 @@ if(!class_exists('rex_socket')) {
 // REX TOP
 ////////////////////////////////////////////////////////////////////////////////
 require $REX['INCLUDE_PATH'] . '/layout/top.php';
-$subpage = $subpage=='' ? 'settings' : $subpage; /* 4.2.1 fix: top.php resets $subpage */
 
 // REX TITLE/NAVI
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,17 @@ if($new_version!='') {
 
 // INCLUDE SUBPAGE
 ////////////////////////////////////////////////////////////////////////////////
-require $REX['INCLUDE_PATH'] . '/addons/'.$myself.'/pages/'.$subpage.'.inc.php';
+switch($subpage){
+  case'':
+    $subpage = 'settings';
+  case'settings':
+  case'help':
+   $local_path = '/addons/'.$myself.'/pages/';
+   break;
+  default:
+   $local_path = '/addons/'.$myself.'/plugins/'.$subpage.'/';
+}
+require $REX['INCLUDE_PATH'].$local_path.$subpage.'.inc.php';
 
 // JS SCRIPT FÜR LINKS IN NEUEN FENSTERN (per <a class="blank">)
 ////////////////////////////////////////////////////////////////////////////////
