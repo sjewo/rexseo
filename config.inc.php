@@ -35,7 +35,6 @@ $REX['ADDON']['perm'][$myself]        = $myself.'[]';
 $REX['PERM'][]                        = $myself.'[]';
 $REX['ADDON'][$myself]['SUBPAGES']    = array (
   array ('',          'Einstellungen'),
-  array ('redirects', 'Redirects'),
   array ('help',      'Hilfe')
   );
 $REX['ADDON'][$myself]['debug_log']   = 0;
