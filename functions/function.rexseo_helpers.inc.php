@@ -458,3 +458,12 @@ function rexseo_setup_metainfo()
   }
 
 }
+
+/**
+ * legacy function
+ **/
+function rexseo_htaccess_update_redirects(){
+  if(OOPlugin::isAvailable('rexseo','redirects_manager')){
+    redirects_manager::updateHtaccess();
+  }
+}
