@@ -61,7 +61,7 @@ if($func=='update_redirect_settings')
     $qry = 'INSERT INTO `'.$table.'` (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`) VALUES';
     $batch = rexseo_301_2_array($batch);
     $date = time();
-    $expire = $date + ($REX['ADDON']['rexseo']['settings']['default_redirect_expire']*24*60*60);
+    $expire = $date + ($REX['ADDON']['redirects_manager']['settings']['default_redirect_expire']*24*60*60);
     foreach($batch as $k=>$v)
     {
       $qry .= PHP_EOL.'(\'\', \''.$date.'\', \''.$date.'\', \''.$expire.'\', \''.$REX['USER']->getValue('login').'\', 1, \''.$k.'\', '.$v['article_id'].', '.$v['clang'].', 301),';
@@ -115,8 +115,8 @@ require_once $myroot.'../../classes/class.rexseo_select.inc.php';
 ////////////////////////////////////////////////////////////////////////////////
 if($func == '' || $func=='update_redirect_settings')
 {
-  echo '<div class="rex-addon-output">
-  <h2 class="rex-hl2">Redirects <span style="color:silver;font-size:12px;">(DB Tabelle: '.$table.')</span></h2>';
+  //echo '<div class="rex-addon-output">
+  //<!--<h2 class="rex-hl2">Redirects <span style="color:silver;font-size:12px;">(DB Tabelle: '.$table.')</span></h2>-->';
 
   $query = 'SELECT `id`, `from_url`, `status`, `to_article_id`, `to_clang`, `http_status`, `expiredate`, `createdate`, `updatedate`, `creator` FROM '.$table.' ORDER BY `createdate` DESC';
   $list = new rex_list($query,$pagination,'data');
@@ -192,7 +192,7 @@ if($func == '' || $func=='update_redirect_settings')
   $list->setColumnParams('http_status'   ,array('func' => 'edit', 'id' => '###id###'));
   $list->show();
 
-  echo '</div>';
+  //echo '</div>';
 
   // SETTINGS FORM
   //////////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ if($func == '' || $func=='update_redirect_settings')
 
 
   echo '
-  <div class="rex-addon-output">
+  <div class="rex-addon-output" style="margin-top:20px;">
     <div class="rex-form">
 
     <form action="index.php?page=rexseo&subpage=redirects_manager" method="post">
@@ -406,6 +406,88 @@ echo '
   </p>
 </div>
 ';
+?>
+
+<script type="text/javascript">
+<!--
+jQuery(function($) {
+
+
+jQuery(document).ready(function() {
+
+// MULTILANG LINK BUTTON HACK
+$('p.rex-widget-icons').replaceWith($('p#clang-link-buttons'));
+
+$('#clang-hack').attr('article_id',$('#LINK_1').val());
+$('#clang-hack').attr('clang',$('#rex_rexseo_redirects_Redirect_to_clang').val());
+
+$(document).focus(function(){
+if($('#LINK_1').val() != $('#clang-hack').attr('article_id')){
+$('#rex_rexseo_redirects_Redirect_to_clang').val($('#clang-hack').attr('clang'));
+}
+});
+
+// UNIX TIMESTRING TO HUMAN DATE
+$("span.rex-form-read.unix-date").each(function() {
+d = new Date($(this).html() * 1000);
+$(this).html(d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+" - "+d.getHours()+":"+d.getMinutes()+"h");
+});
+
+// HIDE ACTUAL EXIRE DATE INPUT
+$("#rex_rexseo_redirects_Infos_expiredate").css("display","none");
+
+// CONVERT UNIX DATE FROM HIDDEN INPUT TO HUMAN DATE FOR DATEPICKER
+v = $("#rex_rexseo_redirects_Infos_expiredate").val();
+d = new Date(v * 1000);
+$(".unix-date-picker").append('<input type="text" style="width:100px" id="formated-date" value="'+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+'" /> (D.M.YYYY)');
+
+}); //jQuery(document).ready(function()
+
+
+// SWITCH CSS STYLE FOR CHOSEN LANG IN WIDGET
+$('.open-clang-linkmap').click(function(){
+$('#clang-hack').attr('clang',$(this).attr('clang'));
+});
+
+
+// UPDATE HIDDEN INPUT ON USER CHANGE OF EXPIRE DATE
+$('input#formated-date').change(function(){
+u = $(this).val().split(".");
+if(u[0]<10) u[0]="0"+u[0];
+if(u[1]<10) u[1]="0"+u[1];
+d = new Date(u[2],u[1]-1,u[0]);
+$("#rex_rexseo_redirects_Infos_expiredate").val(d.getTime()/1000);
+});
+
+// VALIDATE NOT EMPTY ON SAVE
+$("#rex_rexseo_redirects_Redirect_save").click(function(){
+if($("#rex_rexseo_redirects_Redirect_from_url").val()==""){
+alert("Alte URL definieren!");
+return false;
+}
+if($("#LINK_1").val()==0){
+alert("Umleitungs URL definieren!");
+return false;
+}
+});
+
+// VALIDATE NOT EMPTY ON UPDATE
+$("#rex_rexseo_redirects_Redirect_apply").click(function(){
+if($("#rex_rexseo_redirects_Redirect_from_url").val()==""){
+alert("Alte URL definieren!");
+return false;
+}
+if($("#LINK_1").val()==0){
+alert("Umleitungs URL definieren!");
+return false;
+}
+});
+
+}); // jQuery(function($)
+//-->
+</script>
+
+<?php
 }
 
 
