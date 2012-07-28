@@ -54,14 +54,14 @@ if(!$db->setQuery($qry))
 
 // INSTALL REXSEO REDIRECTS CRONJOB
 ////////////////////////////////////////////////////////////////////////////////
-$check = 'SELECT * from `'.$REX['TABLE_PREFIX'].'630_cronjobs` WHERE `createuser`=\'rexseo\'';
-$db->setQuery($check);
-if($db->getRows()==0)
-{
-  $install = 'INSERT INTO `'.$REX['TABLE_PREFIX'].'630_cronjobs` (`id`, `name`, `type`, `parameters`, `interval`, `nexttime`, `environment`, `status`, `createdate`, `createuser`, `updatedate`, `updateuser`) VALUES
-  (\'\', \'RexSEO Redirect Expire\', \'rex_cronjob_phpcode\', \'a:1:{s:24:"rex_cronjob_phpcode_code";s:80:"if (OOAddon::isAvailable(\'\'rexseo\'\'))\r\n{\r\n  rexseo_htaccess_update_redirects();\r\n}";}\', \'|1|d|\', 0, \'|0|1|\', 1, CURDATE(), \'rexseo\', CURDATE(), \'rexseo\');';
-  $db->setQuery($install);
-}
+$clean = 'DELETE from `'.$REX['TABLE_PREFIX'].'630_cronjobs` WHERE `createuser`=\'rexseo\'';
+$db->setQuery($clean);
+
+$install = 'INSERT INTO `'.$REX['TABLE_PREFIX'].'630_cronjobs`
+      (`id`, `name`                   , `type`                 , `parameters`                                                                                                                                                                , `interval`, `nexttime`, `environment`, `status`, `createdate`, `createuser`, `updatedate`, `updateuser`)
+VALUES(\'\',\'RexSEO Redirect Expire\', \'rex_cronjob_phpcode\', \'a:1:{s:24:"rex_cronjob_phpcode_code";s:105:"  if(OOPlugin::isAvailable(\'\'rexseo\'\',\'\'redirects_manager\'\')){\r\n    redirects_manager::updateHtaccess();\r\n  }";}\', \'|1|d|\' , \'\'      , \'|0|1|\'    , 1       , \'\'        , \'rexseo\'  , \'\'        , \'rexseo\')';
+$db->setQuery($install);
+
 
 
 $REX['ADDON']['install'][$myself] = 1;
