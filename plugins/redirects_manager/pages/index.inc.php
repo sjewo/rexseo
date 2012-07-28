@@ -12,7 +12,7 @@
  */
 
 
-// GET PARAMS
+// PARAMS
 ////////////////////////////////////////////////////////////////////////////////
 $myself    = 'redirects_manager';
 $myroot    = $REX['INCLUDE_PATH'].'/addons/rexseo/plugins/'.$myself.'/';
@@ -22,44 +22,10 @@ $func      = rex_request('func'   , 'string');
 $id        = rex_request('id', 'int');
 
 
-
 // SETTINGS
 /////////////////////////////////////////////////////////////////////////////////
 $table      = $REX['TABLE_PREFIX'].'rexseo_redirects';
 $pagination = 15;
-
-// BATCH SUBMIT FUNCTION
-/////////////////////////////////////////////////////////////////////////////////
-if($func=='batch-submit')
-{
-  $batch = rex_request('redirects','string','false');
-  if($batch!='false')
-  {
-    $db = rex_sql::factory();
-    $qry = 'INSERT INTO `'.$table.'` (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`) VALUES';
-    $batch = rexseo_301_2_array($batch);
-    $date = time();
-    $expire = $date + ($REX['ADDON']['rexseo']['settings']['default_redirect_expire']*24*60*60);
-    foreach($batch as $k=>$v)
-    {
-      $qry .= PHP_EOL.'(\'\', \''.$date.'\', \''.$date.'\', \''.$expire.'\', \''.$REX['USER']->getValue('login').'\', 1, \''.$k.'\', '.$v['article_id'].', '.$v['clang'].', 301),';
-    }
-    $qry = rtrim($qry,',').';';
-
-    if($db->setQuery($qry))
-      echo rex_info('Weiterleitungen wurden in Tabelle gespeichert.');
-
-    if(rexseo_htaccess_update_redirects())
-      echo rex_info('Weiterleitungen wurden in die .htaccess geschrieben.');
-  }
-}
-
-
-// INCLUDES
-////////////////////////////////////////////////////////////////////////////////
-require_once $myroot.'../../functions/function.rexseo_helpers.inc.php';
-require_once $myroot.'../../classes/class.rexseo_select.inc.php';
-#require_once $myroot.'../../classes/class.rexseo_rewrite.inc.php';
 
 
 // BACKEND CSS
@@ -83,12 +49,74 @@ require $REX['INCLUDE_PATH'] . '/layout/top.php';
 rex_title('RexSEO <span class="addonversion">'.$REX['ADDON']['version']['rexseo'].'</span>',$REX['ADDON']['rexseo']['SUBPAGES']);
 
 
+// FORM SUBMIT FUNCTIONS
+/////////////////////////////////////////////////////////////////////////////////
+if($func=='update_redirect_settings')
+{
+  // BATCH REDIRECTS
+  $batch = rex_request('redirects','string','false');
+  if($batch!='false')
+  {
+    $db = rex_sql::factory();
+    $qry = 'INSERT INTO `'.$table.'` (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`) VALUES';
+    $batch = rexseo_301_2_array($batch);
+    $date = time();
+    $expire = $date + ($REX['ADDON']['rexseo']['settings']['default_redirect_expire']*24*60*60);
+    foreach($batch as $k=>$v)
+    {
+      $qry .= PHP_EOL.'(\'\', \''.$date.'\', \''.$date.'\', \''.$expire.'\', \''.$REX['USER']->getValue('login').'\', 1, \''.$k.'\', '.$v['article_id'].', '.$v['clang'].', 301),';
+    }
+    $qry = rtrim($qry,',').';';
+
+    if($db->setQuery($qry)){
+      echo rex_info('Weiterleitungen wurden in Tabelle gespeichert.');
+    }
+
+    if(redirects_manager::updateHtaccess()){
+      echo rex_info('Weiterleitungen wurden in die .htaccess geschrieben.');
+    }
+  }
+
+  // PLUGIN SETTINGS
+  $CAST = array (
+        'page'                    => 'unset',
+        'subpage'                 => 'unset',
+        'func'                    => 'unset',
+        'submit'                  => 'unset',
+        'sendit'                  => 'unset',
+        'redirects'               => 'unset',
+        'auto_redirects'          => 'int',
+        'default_redirect_expire' => 'int',
+        );
+
+  // GET ADDON SETTINGS FROM REQUEST
+  $myCONF = rexseo_batch_cast($_POST,$CAST);
+
+  // UPDATE REX
+  $REX['ADDON'][$myself]['settings'] = $myCONF;
+
+  // SAVE ADDON SETTINGS
+  $DYN    = '$REX["ADDON"]["'.$myself.'"]["settings"] = '.stripslashes(var_export($myCONF,true)).';';
+  $config = $REX['INCLUDE_PATH'].'/addons/rexseo/plugins/'.$myself.'/config.inc.php';
+  rex_replace_dynamic_contents($config, $DYN);
+  echo rex_info('Einstellungen wurden gespeichert.');
+
+}
+
+
+// INCLUDES
+////////////////////////////////////////////////////////////////////////////////
+require_once $myroot.'../../functions/function.rexseo_helpers.inc.php';
+require_once $myroot.'../../classes/class.rexseo_select.inc.php';
+#require_once $myroot.'../../classes/class.rexseo_rewrite.inc.php';
+
+
 // PAGE BODY
 ////////////////////////////////////////////////////////////////////////////////
-if($func == '' || $func=='batch-submit')
+if($func == '' || $func=='update_redirect_settings')
 {
-   echo '<div class="rex-addon-output">
-   <h2 class="rex-hl2">Redirects <span style="color:silver;font-size:12px;">(DB Tabelle: '.$table.')</span></h2>';
+  echo '<div class="rex-addon-output">
+  <h2 class="rex-hl2">Redirects <span style="color:silver;font-size:12px;">(DB Tabelle: '.$table.')</span></h2>';
 
   $query = 'SELECT `id`, `from_url`, `status`, `to_article_id`, `to_clang`, `http_status`, `expiredate`, `createdate`, `updatedate`, `creator` FROM '.$table.' ORDER BY `createdate` DESC';
   $list = new rex_list($query,$pagination,'data');
@@ -166,60 +194,72 @@ if($func == '' || $func=='batch-submit')
 
   echo '</div>';
 
-// SETTINGS FORM
-////////////////////////////////////////////////////////////////////////////////
-$default_redirect_expire = !isset($REX['ADDON'][$myself]['settings']['default_redirect_expire'])
-                         ? 60
-                         : $REX['ADDON'][$myself]['settings']['default_redirect_expire'];
+  // SETTINGS FORM
+  //////////////////////////////////////////////////////////////////////////////
+  $default_redirect_expire = !isset($REX['ADDON'][$myself]['settings']['default_redirect_expire'])
+                           ? 60
+                           : $REX['ADDON'][$myself]['settings']['default_redirect_expire'];
 
-$auto_redirects = !isset($REX['ADDON'][$myself]['settings']['auto_redirects'])
-                ? ''
-                : $REX['ADDON'][$myself]['settings']['auto_redirects'];
+  $auto_redirects = !isset($REX['ADDON'][$myself]['settings']['auto_redirects'])
+                  ? ''
+                  : $REX['ADDON'][$myself]['settings']['auto_redirects'];
 
-$auto_redirects_select = new rexseo_select();
-$auto_redirects_select->setSize(1);
-$auto_redirects_select->setName('auto_redirects');
-$auto_redirects_select->addOption('Inaktiv',0);
-$auto_redirects_select->addOption('Vollautomatisch (Redirects anlegen & aktivieren)',1);
-$auto_redirects_select->addOption('Halbautomatisch (Redirects anlegen aber inaktiv setzen)',2);
-$auto_redirects_select->setSelected($auto_redirects);
-
-
-
-echo '
-<div class="rex-addon-output">
-  <div class="rex-form">
-
-  <form action="index.php" method="post">
-    <input type="hidden" name="page"                   value="rexseo" />
-    <input type="hidden" name="subpage"                value="redirect_manager" />
-    <input type="hidden" name="func"                   value="update_redirect_settings" />
-
-      <fieldset class="rex-form-col-1">
-        <legend style="font-size: 1.333em;color: #336699;">Settings</legend>
-        <div class="rex-form-wrapper">
-
-          <div class="rex-form-row">
-            <p class="rex-form-col-a rex-form-select">
-              <label for="auto_redirects" class="helptopic">Auto-Redirects:</label>
-                '.$auto_redirects_select->get().'
-            </p>
-          </div><!-- /rex-form-row -->
+  $auto_redirects_select = new rexseo_select();
+  $auto_redirects_select->setSize(1);
+  $auto_redirects_select->setName('auto_redirects');
+  $auto_redirects_select->addOption('Inaktiv',0);
+  $auto_redirects_select->addOption('Vollautomatisch (Redirects anlegen & aktivieren)',1);
+  $auto_redirects_select->addOption('Halbautomatisch (Redirects anlegen aber inaktiv setzen)',2);
+  $auto_redirects_select->setSelected($auto_redirects);
 
 
-          <div class="rex-form-row">
-            <p class="rex-form-col-a rex-form-text">
-              <label for="default_redirect_expire" class="helptopic">Default Expire:</label>
-              <input id="default_redirect_expire" class="rex-form-text" style="width:50px;" type="text" name="default_redirect_expire" value="'.stripslashes($default_redirect_expire).'" /> Tage
-            </p>
-          </div><!-- /rex-form-row -->
+  echo '
+  <div class="rex-addon-output">
+    <div class="rex-form">
 
-        </div><!-- /rex-form-wrapper -->
-      </fieldset>
+    <form action="index.php?page=rexseo&subpage=redirects_manager" method="post">
+      <input type="hidden" name="page"    value="rexseo" />
+      <input type="hidden" name="subpage" value="redirects_manager" />
+      <input type="hidden" name="func"    value="update_redirect_settings" />
+
+        <fieldset class="rex-form-col-1">
+          <legend style="font-size: 1.333em;color: #336699;">Settings</legend>
+          <div class="rex-form-wrapper">
+
+            <div class="rex-form-row">
+              <p class="rex-form-col-a rex-form-select">
+                <label for="auto_redirects" class="helptopic">Auto-Redirects:</label>
+                  '.$auto_redirects_select->get().'
+              </p>
+            </div><!-- /rex-form-row -->
 
 
-      <fieldset class="rex-form-col-1">
-        <legend>&nbsp;</legend>
+            <div class="rex-form-row">
+              <p class="rex-form-col-a rex-form-text">
+                <label for="default_redirect_expire" class="helptopic">Default Expire:</label>
+                <input id="default_redirect_expire" class="rex-form-text" style="width:50px;" type="text" name="default_redirect_expire" value="'.stripslashes($default_redirect_expire).'" /> Tage
+              </p>
+            </div><!-- /rex-form-row -->
+
+          </div><!-- /rex-form-wrapper -->
+        </fieldset>
+
+
+        <fieldset class="rex-form-col-1">
+          <legend style="font-size: 1.333em;color: #336699;">Legacy Batch Submit</legend>
+          <div class="rex-form-wrapper">
+
+            <div class="rex-form-row">
+              <p class="rex-form-col-a rex-form-select">
+                <label for="robots" class="helptopic">Weiterleitungen:<br /> <br /><em style="color:gray;font-size:10px;">url article_id clang<br />z.B. foo/bar.html 4 0</em></label>
+                <textarea id="rexseo_redirects" name="redirects"></textarea>
+              </p>
+            </div><!-- /rex-form-row -->
+
+          </div><!-- /rex-form-wrapper -->
+        </fieldset>
+
+
         <div class="rex-form-wrapper">
 
           <div class="rex-form-row rex-form-element-v2">
@@ -229,78 +269,36 @@ echo '
           </div><!-- /rex-form-row -->
 
         </div><!-- /rex-form-wrapper -->
-      </fieldset>
 
-  </form>
-  </div><!-- /rex-addon-output -->
-</div><!-- /rex-form -->
 
-<script type="text/javascript">
-<!--
-jQuery(function($) {
+    </form>
+    </div><!-- /rex-addon-output -->
+  </div><!-- /rex-form -->
 
-  jQuery(document).ready(function() {
-    if($("#rewrite_params").val()!=1)
-    {
-      $("#params_starter_span").hide();
-      $("#params_starter").hide();
-    }
+  <script type="text/javascript">
+  <!--
+  jQuery(function($) {
 
-    // AUTOMATIC HELP TOPIC LINK
-    $(".helptopic").each(function() {
-    var p = $(this).html().split(":");
-    p[1] = \' <a class="help-icon" title="Hilfe zum Thema anzeigen" href="index.php?page=rexseo&subpage=help&chapter=settings&highlight=\'+escape(p[0]+\':\')+\'">?</a>\'+p[1];
-    $(this).html(p.join(":"));
+    jQuery(document).ready(function() {
+      if($("#rewrite_params").val()!=1)
+      {
+        $("#params_starter_span").hide();
+        $("#params_starter").hide();
+      }
+
+      // AUTOMATIC HELP TOPIC LINK
+      $(".helptopic").each(function() {
+      var p = $(this).html().split(":");
+      p[1] = \' <a class="help-icon" title="Hilfe zum Thema anzeigen" href="index.php?page=rexseo&subpage=help&chapter=settings&highlight=\'+escape(p[0]+\':\')+\'">?</a>\'+p[1];
+      $(this).html(p.join(":"));
+      });
     });
+
   });
+  //-->
+  </script>
 
-});
-//-->
-</script>
-
-';
-
-// BATCH SUBMIT FORM
-////////////////////////////////////////////////////////////////////////////////
-echo '
-
-<div class="rex-addon-output">
-  <div class="rex-form">
-
-  <form action="index.php" method="post">
-    <input type="hidden" name="page"                   value="rexseo" />
-    <input type="hidden" name="subpage"                value="redirects" />
-    <input type="hidden" name="func"                   value="batch-submit" />
-
-      <fieldset class="rex-form-col-1">
-        <legend style="font-size: 1.333em;color: #336699;">Legacy Batch Submit</legend>
-        <div class="rex-form-wrapper">
-
-          <div class="rex-form-row">
-            <p class="rex-form-col-a rex-form-select">
-              <label for="robots" class="helptopic">Weiterleitungen:<br /> <br /><em style="color:gray;font-size:10px;">url article_id clang<br />z.B. foo/bar.html 4 0</em></label>
-              <textarea id="rexseo_redirects" name="redirects"></textarea>
-            </p>
-          </div><!-- /rex-form-row -->
-
-        </div><!-- /rex-form-wrapper -->
-
-        <div class="rex-form-wrapper">
-
-          <div class="rex-form-row rex-form-element-v2">
-            <p class="rex-form-submit">
-              <input class="rex-form-submit" type="submit" id="sendit" name="sendit" value="Weiterleitungen einfügen" />
-            </p>
-          </div><!-- /rex-form-row -->
-
-        </div><!-- /rex-form-wrapper -->
-      </fieldset>
-
-  </form>
-  </div><!-- /rex-addon-output -->
-</div><!-- /rex-form -->
-';
-
+  ';
 
 
 }
