@@ -284,9 +284,10 @@ class RexseoRewrite
   */
   private function redirect($redirect)
   {
+    global $REXSEO_IDS;
+
     $status   = isset($redirect['status']) ? $redirect['status'] : 200;
-    $location = self::rewrite(array('id'   => $redirect['id'],
-                                    'clang'=> $redirect['clang']));
+    $location = $REXSEO_IDS[$redirect['id']][$redirect['clang']]['url'];
 
     while(@ob_end_clean());
 
