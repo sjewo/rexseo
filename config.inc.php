@@ -89,33 +89,35 @@ Disallow:',
 ////////////////////////////////////////////////////////////////////////////////
 rex_register_extension('ADDONS_INCLUDED','rexseo_init');
 
-function rexseo_init($params)
-{
-  global $REX,$myroot,$myself;
-
-  // MAIN
-  require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_meta.inc.php';
-
-  if ($REX['MOD_REWRITE'] !== false)
+if(!function_exists('rexseo_init')){
+  function rexseo_init($params)
   {
-    // REWRITE
-    $levenshtein    = (bool) $REX['ADDON'][$myself]['settings']['levenshtein'];
-    $rewrite_params = (bool) $REX['ADDON'][$myself]['settings']['rewrite_params'];
-    require_once $myroot.'/classes/class.rexseo_rewrite.inc.php';
-    $rewriter = new RexseoRewrite($levenshtein,$rewrite_params);
-    $rewriter->resolve();
-    rex_register_extension('URL_REWRITE', array ($rewriter, 'rewrite'));
+    global $REX;
 
-    // FIX TEXTILE/TINY LINKS @ REX < 4.3
-    if(intval($REX['VERSION']) == 4 && intval($REX['SUBVERSION']) < 3)
+    // MAIN
+    require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_meta.inc.php';
+
+    if ($REX['MOD_REWRITE'] !== false)
     {
-      rex_register_extension('GENERATE_FILTER', 'rexseo_fix_42x_links');
+      // REWRITE
+      $levenshtein    = (bool) $REX['ADDON']['rexseo']['settings']['levenshtein'];
+      $rewrite_params = (bool) $REX['ADDON']['rexseo']['settings']['rewrite_params'];
+      require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_rewrite.inc.php';
+      $rewriter = new RexseoRewrite($levenshtein,$rewrite_params);
+      $rewriter->resolve();
+      rex_register_extension('URL_REWRITE', array ($rewriter, 'rewrite'));
+
+      // FIX TEXTILE/TINY LINKS @ REX < 4.3
+      if(intval($REX['VERSION']) == 4 && intval($REX['SUBVERSION']) < 3)
+      {
+        rex_register_extension('GENERATE_FILTER', 'rexseo_fix_42x_links');
+      }
     }
-  }
 
-  // CONTROLLER
-  include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
+    // CONTROLLER
+    include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
 
+  } // rexseo_init()
 }
 
 
