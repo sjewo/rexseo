@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.4.286 dev
+ * @version 1.5.beta_29.7
  */
 
 // MAIN PARAMS
@@ -43,14 +43,14 @@ $CAST = array (
       'hide_langslug'              => 'int',
       'compress_pathlist'          => 'int',
       'urlencode'                  => 'int',
-      'default_redirect_expire'    => 'int',
-      'auto_redirects'             => 'int'
       );
 
 
 // RUN REDIRECTS CACHER
 ////////////////////////////////////////////////////////////////////////////////
-rexseo_htaccess_update_redirects();
+if(OOPlugin::isAvailable('rexseo','redirects_manager')){
+  redirects_manager::updateHtaccess();
+}
 
 
 // CHECK METAINFO
@@ -81,8 +81,9 @@ if ($func == 'update')
   $config = $REX['INCLUDE_PATH'].'/addons/'.$myself.'/config.inc.php';
   rex_replace_dynamic_contents($config, $DYN);
   rex_replace_dynamic_contents($backup, $DYN);
-  rexseo_purgeCacheFiles();
   echo rex_info('Einstellungen wurden gespeichert.');
+  rexseo_generate_pathlist('');
+  echo rex_info('Pathlist wurden aktuallisiert.');
 }
 
 
@@ -304,22 +305,6 @@ $urlencode_select->addOption('Kodierung per urlencode',1);
 $urlencode_select->setSelected($REX['ADDON'][$myself]['settings']['urlencode']);
 
 
-// AUTO REDIRECTS SELECT BOX
-////////////////////////////////////////////////////////////////////////////////
-$auto_redirects = !isset($REX['ADDON'][$myself]['settings']['auto_redirects'])
-                ? ''
-                : $REX['ADDON'][$myself]['settings']['auto_redirects'];
-
-$auto_redirects_select = new rexseo_select();
-$auto_redirects_select->setSize(1);
-$auto_redirects_select->setName('auto_redirects');
-$auto_redirects_select->addOption('Inaktiv',0);
-$auto_redirects_select->addOption('Vollautomatisch (Redirects anlegen & aktivieren)',1);
-$auto_redirects_select->addOption('Halbautomatisch (Redirects anlegen aber inaktiv setzen)',2);
-$auto_redirects_select->setSelected($auto_redirects);
-
-
-
 // EXPERT SETTINGS CHECKBOX OPTIONS
 ////////////////////////////////////////////////////////////////////////////////
 if($REX['ADDON'][$myself]['settings']['expert_settings'] == 1)
@@ -353,9 +338,6 @@ echo '
     <input type="hidden" name="compress_pathlist"      value="1" />
 ';
 
-$default_redirect_expire = !isset($REX['ADDON'][$myself]['settings']['default_redirect_expire'])
-                         ? 60
-                         : $REX['ADDON'][$myself]['settings']['default_redirect_expire'];
 
 foreach ($REX['CLANG'] as $id => $str)
 {
@@ -465,91 +447,6 @@ echo '
                 '.$levenshtein_select->get().'
             </p>
           </div><!-- /rex-form-row -->
-
-        </div><!-- /rex-form-wrapper -->
-      </fieldset>
-
-      <fieldset class="rex-form-col-1">
-        <legend>Weiterleitungen</legend>
-        <div class="rex-form-wrapper">
-
-          <div class="rex-form-row">
-            <p class="rex-form-col-a rex-form-select">
-              <label for="auto_redirects" class="helptopic">Auto-Redirects:</label>
-                '.$auto_redirects_select->get().'
-            </p>
-          </div><!-- /rex-form-row -->
-
-
-          <div class="rex-form-row">
-            <p class="rex-form-col-a rex-form-text">
-              <label for="default_redirect_expire" class="helptopic">Default Expire:</label>
-              <input id="default_redirect_expire" class="rex-form-text" style="width:50px;" type="text" name="default_redirect_expire" value="'.stripslashes($default_redirect_expire).'" /> Tage
-            </p>
-          </div><!-- /rex-form-row -->
-';
-
-$db = new rex_sql;
-$qry = 'SELECT * FROM `'.$table.'` ORDER BY `createdate` DESC';
-if(count($db->getDBArray($qry))>0)
-{
-  echo '<div class="rex-form-row" style="max-height:300px;overflow:auto;">
-              <table id="rexseo-redirect-list" class="rex-table">
-              <tr>
-                <th>alte URL</th>
-                <th>Status</th>
-                <th>Umleitung auf</th>
-                <th></th>
-              </tr>
-';
-  foreach($db->getDBArray($qry) as $r)
-  {
-    switch($r['status'])
-    {
-      case 1:
-        $status = '<a href="index.php?page=rexseo&func=toggle_redirect&id='.$r['id'].'"><span class="redirect-btn active">aktiv ('.$r['http_status'].')</span></a>';
-        break;
-      case 2:
-        $status = '<span class="redirect-btn inactive">conflict</span>';
-        break;
-      case 3:
-        $status = '<span class="redirect-btn inactive">duplicate</span>';
-        break;
-      case 5:
-        $status = '<span class="redirect-btn inactive">expired</span>';
-        break;
-      default:
-        $status = '<a href="index.php?page=rexseo&func=toggle_redirect&id='.$r['id'].'"><span class="redirect-btn">inaktiv</span></a>';
-    }
-
-    echo '
-                <tr>
-                  <td>
-                    <a class="new" href="index.php?list=data&page=rexseo&subpage=redirects&func=edit&id='.$r['id'].'">
-                      '.urldecode($r['from_url']).'
-                    </a>
-                  </td>
-                  <td>
-                      '.$status.'
-                  </td>
-                  <td>
-                    <a class="new" href="index.php?list=data&page=rexseo&subpage=redirects&func=edit&id='.$r['id'].'">
-                    '.urldecode(rex_getUrl($r['to_article_id'],$r['to_clang'])).' ['.$r['to_article_id'].'] ['.$r['to_clang'].']
-                    </a>
-                  </td>
-                  <td>
-                    <a href="index.php?page=rexseo&func=delete_redirect&id='.$r['id'].'">
-                      <img style="border:0;margin:-3px 0 0 0;" src="../files/addons/rexseo/rex_agk_delete_on.gif">
-                    </a>
-                  </td>
-                </tr>';
-  }
-  echo '
-              </table></div>
-';
-}
-echo '
-
 
         </div><!-- /rex-form-wrapper -->
       </fieldset>

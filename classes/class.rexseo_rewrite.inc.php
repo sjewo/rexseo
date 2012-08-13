@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.4.286 dev
+ * @version 1.5.beta_29.7
  */
 
 define('REXSEO_PATHLIST', $REX['INCLUDE_PATH'].'/generated/files/rexseo_pathlist.php');
@@ -87,7 +87,7 @@ class RexseoRewrite
 
 
       // IF NON_REWRITTEN URLS ALLOWED -> USE ARTICLE_ID FROM REQUEST
-      if ($allow_articleid != 0 && isset($_GET['article_id']))
+      if ($allow_articleid != 0 && rex_get('article_id', 'int') > 0)
       {
         if($allow_articleid == 1)
         {
@@ -284,9 +284,10 @@ class RexseoRewrite
   */
   private function redirect($redirect)
   {
+    global $REXSEO_IDS;
+
     $status   = isset($redirect['status']) ? $redirect['status'] : 200;
-    $location = self::rewrite(array('id'   => $redirect['id'],
-                                    'clang'=> $redirect['clang']));
+    $location = $REXSEO_IDS[$redirect['id']][$redirect['clang']]['url'];
 
     while(@ob_end_clean());
 
