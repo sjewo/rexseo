@@ -87,7 +87,9 @@ Disallow:',
 
 // RUN ON ADDONS INLCUDED
 ////////////////////////////////////////////////////////////////////////////////
-rex_register_extension('ADDONS_INCLUDED','rexseo_init');
+if(!$REX['SETUP']){
+  rex_register_extension('ADDONS_INCLUDED','rexseo_init');
+}
 
 if(!function_exists('rexseo_init')){
   function rexseo_init($params)
@@ -119,7 +121,7 @@ if(!function_exists('rexseo_init')){
 
     // REXSEO POST INIT
     rex_register_extension_point('REXSEO_POST_INIT');
-    
+
   } // rexseo_init()
 }
 
