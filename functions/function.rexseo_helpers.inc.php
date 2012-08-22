@@ -413,6 +413,10 @@ function rexseo_setup_metainfo()
 {
   global $REX;
 
+  if(!isset($REX['USER'])){
+    return;
+  }
+
   $install_metas = array(
     'art_rexseo_legend'         => array('RexSEO Rewrite',              'art_rexseo_legend',        100,    '',         12,     '',       '',                                                                                                     '',               ''),
     'art_rexseo_url'            => array('Custom URL',                  'art_rexseo_url',           101,    '',          1,     '',       '',                                                                                                     '',               ''),
