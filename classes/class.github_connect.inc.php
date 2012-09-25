@@ -88,7 +88,7 @@ class github_connect
   }
 
 
-  public function getLatestVersion($current=false,$return='link',$regex='/([0-9]+.[0-9]+.[0-9]+).zip/')
+  public function getLatestVersion($current=false,$return='link',$regex='/([0-9]+\.[0-9]+\.[0-9]+).*\.zip/')
   {
     global $REX;
     $valid_returns = array('link','version');
