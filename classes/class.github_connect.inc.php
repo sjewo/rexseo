@@ -103,9 +103,24 @@ class github_connect
     {
       $this->getApiResponse($this->api_baseurl.'downloads');
 
+      // SORT VERSIONS FROM API RESPONSE
+      $highest_version = '0.0.0';
+      foreach($this->api_response as $k => $download)
+      {
+        if(preg_match($regex,$download->name,$match)===1)
+        {
+          $download->version = $match[1];
+          if(version_compare($highest_version, $download->version, '<'))
+          {
+            $highest_version = $download->version;
+            $highest_version_index = $k;
+          }
+        }
+      }
+
       if(count($this->api_response)>0)
       {
-        $latest = $this->api_response[0];
+        $latest = $this->api_response[$highest_version_index];
         $match = array();
         preg_match($regex,$latest->name,$match);
         if(count($match)>0)
