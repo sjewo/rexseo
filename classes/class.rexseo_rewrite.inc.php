@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.0
+ * @version 1.5.1
  */
 
 define('REXSEO_PATHLIST', $REX['INCLUDE_PATH'].'/generated/files/rexseo_pathlist.php');
@@ -35,7 +35,7 @@ class RexseoRewrite
   /**
   * LOGERROR()
   */
-  private function logError($err_txt=false,$err_type=false,$trace=false)
+  protected function logError($err_txt=false,$err_type=false,$trace=false)
   {
     global $REX;
 
@@ -282,7 +282,7 @@ class RexseoRewrite
   * redirect request
   * @param $redirect   (array) params passed through from EP
   */
-  private function redirect($redirect)
+  protected function redirect($redirect)
   {
     global $REXSEO_IDS;
 
@@ -305,7 +305,7 @@ class RexseoRewrite
   * @param $art_id   article id
   * @param $clang_id language id
   */
-  private function setArticleId($art_id, $clang_id = -1)
+  protected function setArticleId($art_id, $clang_id = -1)
   {
     global $REX;
     $REX['ARTICLE_ID'] = $art_id;
@@ -321,7 +321,7 @@ class RexseoRewrite
   * Create params string for url
   * @param $EPparams   (array) urlencoded params from rex_getUrl/URL_REWRITE
   */
-  private function makeUrlParams($EPparams)
+  protected function makeUrlParams($EPparams)
   {
     global $REX;
     $divider        = $EPparams['divider'];
@@ -354,7 +354,7 @@ class RexseoRewrite
   * @param $vars   (array) resolved URL Parameters
   * @param $decode (bool)  urldecode vars yes/no
   */
-  private function populateGlobals($vars,$decode=true)
+  protected function populateGlobals($vars,$decode=true)
   {
     if(is_array($vars))
     {

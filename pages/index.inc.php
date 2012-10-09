@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.0
+ * @version 1.5.1
  */
 
 // GET PARAMS, IDENTIFIER, ROOT DIR
@@ -58,19 +58,6 @@ require $REX['INCLUDE_PATH'] . '/layout/top.php';
 // REX TITLE/NAVI
 ////////////////////////////////////////////////////////////////////////////////
 rex_title('RexSEO <span class="addonversion">'.$REX['ADDON']['version'][$myself].'</span>', $REX['ADDON'][$myself]['SUBPAGES']);
-
-// NOTIFY DOWNLOADABLE UPDATE
-////////////////////////////////////////////////////////////////////////////////
-try {
-  $gc = new github_connect('gn2netwerk','rexseo');
-  $new_version = $gc->getLatestVersion($REX['ADDON']['version'][$myself],'link');
-} catch (Exception $e) {
-  $new_version = '';
-}
-
-if($new_version!='') {
-  echo rex_info('Eine neue Version ist als Download verf&uuml;gbar: '.$new_version);
-}
 
 // INCLUDE SUBPAGE
 ////////////////////////////////////////////////////////////////////////////////

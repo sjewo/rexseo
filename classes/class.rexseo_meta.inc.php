@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.0
+ * @version 1.5.1
  */
 
 
@@ -201,6 +201,22 @@ class rexseo_meta {
 
 
   /**
+   * returns metas as html
+   *
+   * @return string  all metas as html code
+   */
+  public function get_html($indent='  ')
+  {
+    $html  = PHP_EOL.$indent.'<base href="'.self::get_base().'" />';
+    $html .= PHP_EOL.$indent.'<title>'.self::get_title().'</title>';
+    $html .= PHP_EOL.$indent.'<meta name="keywords" content="'.self::get_keywords().'" />';
+    $html .= PHP_EOL.$indent.'<meta name="description" content="'.self::get_description().'" />';
+    $html .= PHP_EOL.$indent.'<link rel="canonical" href="'.self::get_canonical().'" />'.PHP_EOL;
+    return $html;
+  }
+
+
+  /**
    * returns connection protocol
    *
    * @return string protocol [https:// or http://]
@@ -348,5 +364,11 @@ class rexseo
   {
     $meta = new rexseo_meta;
     return $meta->get_base();
+  }
+
+  static public function metas()
+  {
+    $meta = new rexseo_meta;
+    return $meta->get_html();
   }
 }
