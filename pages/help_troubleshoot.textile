@@ -43,6 +43,10 @@ bc. # Sprachspezifische Sonderzeichen für Url-Umschreibung
 special_chars = ä|ö|ü|Ä|Ö|Ü|ß|&
 special_chars_rewrite = ae|oe|ue|Ae|Oe|Ue|ss|und
 
+h1. 404 im ./files Ordner nicht per Redaxo ausgeben lassen
+
+Normalerweise wird bei einer nicht-existenten Datei im @./files/@ Ordner die Anfrage an Redaxo weitergeleitet und die entsprechende Fehlerseite ausgegeben. Sollte dies nicht gewünscht sein - sprich nur eine einfache 404 Meldung von Apache - dann muß man eine *Kopie*(!) der Datei @./redaxo/.htaccess@ in den files Ordner speichern: @./files/.htaccess@.
+
 
 
  </div>
