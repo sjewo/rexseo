@@ -2,4 +2,4 @@ h1. RexSEO Resources
 
 * "Wiki":https://github.com/gn2netwerk/rexseo/wiki
 * "Downloads":https://github.com/gn2netwerk/rexseo/downloads
-* "RexSEO threads @ forum.redaxo.org":www.redaxo.org/de/forum/search.php?keywords=rexseo
+* "RexSEO threads @ forum.redaxo.org":http://www.redaxo.org/de/forum/search.php?keywords=rexseo
