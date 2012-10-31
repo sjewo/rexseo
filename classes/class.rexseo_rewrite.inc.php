@@ -256,6 +256,9 @@ class RexseoRewrite
     // modules/slices in the redaxo backend
     $url = str_replace('/redaxo/','/',$subdir.$url);
 
+    // STRIP LEADING SLASH IF A ABSOLUTE URL WAS GIVEN VIA REXSEO CUSTOM URL
+    $url = substr($url,0,8)=='/http://' ? ltrim($url,'/') : $url;
+
 
     // EP "REXSEO_POST_REWRITE"
     $ep_params = array('article_id'     => $id,
@@ -514,12 +517,19 @@ function rexseo_generate_pathlist($params)
       $id         = $db->getValue('id');
       $clang      = $db->getValue('clang');
       $path       = $db->getValue('path');
-      $rexseo_url = $db->getValue('art_rexseo_url');
+      $rexseo_url = trim($db->getValue('art_rexseo_url'));
 
       // FALLS REXSEO URL -> ERSETZEN
       if ($rexseo_url != '')
       {
-        $pathname = ltrim(trim($rexseo_url),'/'); // sanitize whitespaces & leading slash
+        if(substr($rexseo_url,0,7)=='http://')
+        {
+          $REXSEO_IDS[$id][$clang] = array('url' => $rexseo_url);
+          $db->next();
+          continue;
+        }
+
+        $pathname = ltrim($rexseo_url,'/'); // sanitize leading slash
         $pathname = urlencode($pathname);
         $pathname = str_replace('%2F','/',$pathname); // decode slahes..
 
