@@ -120,7 +120,7 @@ if(!function_exists('rexseo_init')){
     include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
 
     // REXSEO POST INIT
-    rex_register_extension_point('REXSEO_POST_INIT');
+    rex_register_extension_point('REXSEO_INCLUDED');
 
   } // rexseo_init()
 }
