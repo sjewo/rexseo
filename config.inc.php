@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 // ADDON PARAMS
@@ -23,7 +23,7 @@ $REX['ADDON'][$myself]['VERSION'] = array
 (
 'VERSION'      => 1,
 'MINORVERSION' => 5,
-'SUBVERSION'   => 1,
+'SUBVERSION'   => 2,
 );
 
 $REX['ADDON']['rxid'][$myself]        = '750';
