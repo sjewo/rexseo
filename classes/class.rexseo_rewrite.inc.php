@@ -583,6 +583,13 @@ function rexseo_generate_pathlist($params)
           foreach ($path as $p)
           {
             $ooc = OOCategory::getCategoryById($p, $clang);
+
+            // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
+            if(!is_a($ooc,'OOCategory')){
+              self::logError('couldn\'t create OOCategory object with params id='.$p.'/clang='.$clang.'',E_USER_WARNING);
+              continue;
+            }
+
             $name = $ooc->getName();
             unset($ooc);
 
@@ -591,6 +598,14 @@ function rexseo_generate_pathlist($params)
         }
 
         $ooa = OOArticle::getArticleById($id, $clang);
+
+        // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
+        if(!is_a($ooa,'OOArticle')){
+          self::logError('couldn\'t create OOArticle object with params id='.$id.'/clang='.$clang.'',E_USER_WARNING);
+          $db->next();
+          continue;
+        }
+
         if($ooa->isStartArticle())
         {
           $ooc = $ooa->getCategory();
