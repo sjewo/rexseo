@@ -82,7 +82,7 @@ class github_connect
     $this->repo_name  = !$repo_name  ? $this->registerError('no repo name provided' ,E_USER_ERROR) : $repo_name;
 
     $this->api_baseurl = 'https://api.github.com/repos/'.$this->repo_owner.'/'.$this->repo_name.'/';
-    $this->api_sections = array('downloads','commits','issues');
+    $this->api_sections = array('downloads','commits','issues','tags');
 
     $this->html_baseurl = 'https://github.com/'.$this->repo_owner.'/'.$this->repo_name.'/';
   }
@@ -174,6 +174,10 @@ class github_connect
         case 'commits':
             $head  = '<h1>Commits: <a class="jsopenwin" target="_blank" href="'.$this->html_baseurl.'commits">'.$this->html_baseurl.'commits</a></h1>';
         break;
+
+        case 'tags':
+            $head  = '<h1>Downloads: <a class="jsopenwin" target="_blank" href="'.$this->html_baseurl.'tags">'.$this->html_baseurl.'tags</a></h1>';
+        break;
       }
 
       $list_items = '<li>no entries</li>';
@@ -181,8 +185,9 @@ class github_connect
       if(count($this->api_response)>0)
       {
         $list_items = '';
+        $stack      = $this->api_response;
 
-        foreach($this->api_response as $item)
+        foreach($stack as $item)
         {
           switch($type)
           {
@@ -208,6 +213,17 @@ class github_connect
                 $title = preg_replace('/git-svn-id.*/','',$item->commit->message);
                 $class = 'jsopenwin';
                 $target = 'target="_blank"';
+            break;
+
+            case 'tags':
+                // NOTE ENOUGH DATA IN TAGS RESPONSE -> GET DATES FROM INDIVIDUAL COMMITS
+                self::getApiResponse($this->api_baseurl.'git/commits/'.$item->commit->sha);
+
+                $date  = '<strong>'.date('d.m.Y',strtotime($this->api_response->author->date)).'</strong> '.date('H:i',strtotime($this->api_response->author->date));
+                $href  = $item->zipball_url;
+                $title = $item->name.'.zip';
+                $class = '';
+                $target = '';
             break;
           }
           $list_items .= '<li><span class="github-date">'.$date.'</span><a class="'.$class.'" '.$target.' href="'.$href.'">'.$title.'</a></li>';
