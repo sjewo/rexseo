@@ -23,6 +23,7 @@ class github_connect
   private $html_baseurl;
   private $api_baseurl;
   private $api_sections;
+  private $cache_life = 3600; // 60 * 60 = 1h
 
   public  $api_response;
 
@@ -40,6 +41,13 @@ class github_connect
   /* private */
   private function getApiResponse($url)
   {
+    $response = self::getCachedResponse($url);
+
+    if($response!==false){
+      $this->api_response = json_decode($response);
+      return;
+    }
+
     switch($this->access_method)
     {
       case'curl':
@@ -64,6 +72,34 @@ class github_connect
     }
 
     $this->api_response = json_decode($response);
+    self::writeResponseCache($url,$response);
+  }
+
+
+  private function writeResponseCache($url,$response)
+  {
+    global $REX;
+    $cachefile = $REX['INCLUDE_PATH'].'/generated/files/'.self::getCacheFileName($url);
+    return rex_put_file_contents($cachefile,$response);
+  }
+
+
+  private function getCachedResponse($url)
+  {
+    global $REX;
+    $cachefile = $REX['INCLUDE_PATH'].'/generated/files/'.self::getCacheFileName($url);
+    $stats = stat($cachefile);
+    if($stats[9] > (time() - $this->cache_life)){
+      return rex_get_file_contents($cachefile);
+    }else{
+      return false;
+    }
+  }
+
+
+  private function getCacheFileName($url)
+  {
+    return str_replace(array('https://','/'),array('','_'),$url).'.json';
   }
 
 
@@ -118,27 +154,27 @@ class github_connect
         }
       }
 
-      if(count($this->api_response)>0)
-      {
-        $latest = $this->api_response[$highest_version_index];
-        $match = array();
-        preg_match($regex,$latest->name,$match);
-        if(count($match)>0)
-        {
-          if(version_compare($match[1],$current)>0)
-          {
-            switch($return)
-            {
-              case 'link':
-                return '<a class="jsopenwin" href="'.$latest->html_url.'">'.$latest->name.'</a>';
-                break;
-              default:
-                return $match[1];
-            }
-            break;
-          }
-        }
-      }
+      #if(count($this->api_response)>0)
+      #{
+      #  $latest = $this->api_response[$highest_version_index];
+      #  $match = array();
+      #  preg_match($regex,$latest->name,$match);
+      #  if(count($match)>0)
+      #  {
+      #    if(version_compare($match[1],$current)>0)
+      #    {
+      #      switch($return)
+      #      {
+      #        case 'link':
+      #          return '<a class="jsopenwin" href="'.$latest->html_url.'">'.$latest->name.'</a>';
+      #          break;
+      #        default:
+      #          return $match[1];
+      #      }
+      #      break;
+      #    }
+      #  }
+      #}
     }
     else
     {
