@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.3 nightly b044cd6
+ * @version 1.5.3 nightly 27.12.2012
  */
 
 if (!function_exists('rexseo_recursive_copy'))
