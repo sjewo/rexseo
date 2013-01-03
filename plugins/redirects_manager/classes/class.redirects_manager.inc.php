@@ -17,7 +17,6 @@
 class redirects_manager
 {
   private static $initialized = false;
-  private static $debug = false;
 
   function __construct()
   {
@@ -46,7 +45,7 @@ class redirects_manager
   {
     if(self::$initialized===false){
       self::init();
-    }                                                                                                                   if(self::$debug) FB::group(__CLASS__.'::'.__FUNCTION__, array("Collapsed"=>false));
+    }
 
     global $REX;
 
@@ -59,39 +58,39 @@ class redirects_manager
 
     foreach($db->getDBArray($qry) as $r)
     {
-      $target_url = rex_getUrl($r['to_article_id'],$r['to_clang']);                                                     if(self::$debug) FB::log($target_url,'$target_url');
-      $from_url   = $r['from_url'];                                                                                     if(self::$debug) FB::log($from_url,'$from_url');
+      $target_url = rex_getUrl($r['to_article_id'],$r['to_clang']);
+      $from_url   = $r['from_url'];
 
       if($from_url==$target_url) /*1:1 loop*/
       {
-        redirects_manager::updateRedirect($r['id'],2,'delete');                                                         if(self::$debug) FB::info($r['id'],'$from_url==$target_url');
+        redirects_manager::updateRedirect($r['id'],2,'delete');
         continue;
       }
       elseif($from_url=='/' || $from_url=='' || $target_url=='/') /*root loop*/
       {
-        redirects_manager::updateRedirect($r['id'],2,'delete');                                                         if(self::$debug) FB::info($r['id'],'$from_url=="/" || $from_url==""');
+        redirects_manager::updateRedirect($r['id'],2,'delete');
         continue;
       }
       elseif(isset($redirects[$from_url])) /*duplicate*/
       {
-        redirects_manager::updateRedirect($r['id'],3,'update');                                                         if(self::$debug) FB::info($r['id'],'$redirects[$from_url]');
+        redirects_manager::updateRedirect($r['id'],3,'update');
         continue;
       }
       elseif(isset($redirects[$target_url])) /*2nd level loop*/
       {
-        redirects_manager::updateRedirect($r['id'],4,'update');                                                         if(self::$debug) FB::info($r['id'],'redirects[$target_url]');
+        redirects_manager::updateRedirect($r['id'],4,'update');
         continue;
       }
       elseif($r['expiredate']<$now) /*expired*/
       {
-        redirects_manager::updateRedirect($r['id'],5,'update');                                                         if(self::$debug) FB::info($r['id'],'redirects[$target_url]');
+        redirects_manager::updateRedirect($r['id'],5,'update');
         continue;
       }
       elseif($r['status']==1)
       {
         $redirects[$from_url]=array('http_status'=>$r['http_status'],'target_url'=>$target_url);
       }
-    }                                                                                                                   if(self::$debug) FB::log($redirects,'$redirects');
+    }
 
     $ht_path = $REX['HTDOCS_PATH'].'.htaccess';
 
@@ -125,7 +124,7 @@ class redirects_manager
 
       $new_ht = preg_replace("@(### REXSEO REDIRECTS BLOCK.*### /REXSEO REDIRECTS BLOCK)@s", $new_redirects, $ht_content);
       return rex_put_file_contents($ht_path, $new_ht);
-    }                                                                                                                   if(self::$debug) FB::groupEnd();
+    }
     return false;
 
   } // END updateHtaccess
@@ -143,7 +142,7 @@ class redirects_manager
   {
     if(self::$initialized===false){
       self::init();
-    }                                                                                                                   if(self::$debug) FB::group(__CLASS__.'::'.__FUNCTION__, array("Collapsed"=>false));
+    }
     global $REX;
 
     $table = $REX['TABLE_PREFIX'].'rexseo_redirects';
@@ -152,12 +151,12 @@ class redirects_manager
     {
     case 'delete':
       #$qry = 'DELETE FROM `'.$table.'` WHERE `id`='.$id.' AND `creator`=\'rexseo\';';
-      $qry = 'DELETE FROM `'.$table.'` WHERE `id`='.$id.';';                                                            if(self::$debug) FB::log($qry,'$qry');FB::groupEnd();
+      $qry = 'DELETE FROM `'.$table.'` WHERE `id`='.$id.';';
       return $db->setQuery($qry);
       break;
 
     default:
-      $qry = 'UPDATE `'.$table.'` SET `status`='.$status.' WHERE `id`='.$id.';';                                        if(self::$debug) {FB::log($qry,'$qry');FB::groupEnd();}
+      $qry = 'UPDATE `'.$table.'` SET `status`='.$status.' WHERE `id`='.$id.';';
       return $db->setQuery($qry);
     }
   }

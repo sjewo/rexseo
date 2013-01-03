@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.2
+ * @version 1.5.3 nightly 27.12.2012
  */
 
 // GET PARAMS
@@ -40,7 +40,7 @@ $chapterpages = array (
 ''            => array('Quickstart',                   'pages/help_quickstart.textile'            ,'textile'),
 'settings'    => array('Einstellungen',                'pages/help_settings.textile'              ,'textile'),
 'troubleshoot'=> array('Problemf&auml;lle & Sonstiges','pages/help_troubleshoot.textile'          ,'textile'),
-'downloads'   => array('Downloads'                    ,'pages/github_api.inc.php'                 ,'php'),
+'tags'        => array('Downloads'                    ,'pages/github_api.inc.php'                 ,'php'),
 'issues'      => array('Issues'                       ,'pages/github_api.inc.php'                 ,'php'),
 'commits'     => array('Commits'                      ,'pages/github_api.inc.php'                 ,'php'),
 'wiki'        => array('Wiki'                         ,'https://github.com/gn2netwerk/rexseo/wiki','jsopenwin')

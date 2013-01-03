@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x
- * @version 1.5.2
+ * @version 1.5.3 nightly 27.12.2012
  */
 
 define('REXSEO_PATHLIST', $REX['INCLUDE_PATH'].'/generated/files/rexseo_pathlist.php');
@@ -70,7 +70,11 @@ class RexseoRewrite
   {
     global $REX, $REXSEO_URLS, $REXSEO_IDS;
 
-    if(!file_exists(REXSEO_PATHLIST)) rexseo_generate_pathlist(array());
+    if(!file_exists(REXSEO_PATHLIST))
+    {
+      rexseo_generate_pathlist(array());
+    }
+
     require_once(REXSEO_PATHLIST);
 
     if(!$REX['REDAXO'])
@@ -84,6 +88,13 @@ class RexseoRewrite
       $install_subdir  = $REX['ADDON']['rexseo']['settings']['install_subdir'];
       $allow_articleid = $REX['ADDON']['rexseo']['settings']['allow_articleid'];
       $homelang        = $REX['ADDON']['rexseo']['settings']['homelang'];
+
+
+      // TRY IMMEDIATE MATCH OF REQUEST_URI AGAINST PATHLIST..
+      if(self::resolve_from_pathlist(ltrim($_SERVER['REQUEST_URI'],'/')))
+      {
+        return;
+      }
 
 
       // IF NON_REWRITTEN URLS ALLOWED -> USE ARTICLE_ID FROM REQUEST
@@ -108,21 +119,18 @@ class RexseoRewrite
       $path = substr(ltrim($_SERVER['REQUEST_URI'],'/'), $length);
 
 
-      // IMMEDIATE SHORTCUT TO STARTPAGE
-      if (!$path || $path == '' || $path == 'index.php')
-      {
-        return self::setArticleId($start_id,$homelang);
-      }
-
-
       // TRIM STANDARD PARAMS
       if(($pos = strpos($path, '?')) !== false)
+      {
         $path = substr($path, 0, $pos);
+      }
 
 
       // TRIM ANCHORS
       if(($pos = strpos($path, '#')) !== false)
+      {
         $path = substr($path, 0, $pos);
+      }
 
 
       // RESOLVE REWRITTEN PARAMS -> POPULATE GET/REQUEST GLOBALS
@@ -134,27 +142,10 @@ class RexseoRewrite
         self::populateGlobals($vars);
       }
 
-
-      // RESOLVE URL VIA PATHLIST
-      if(isset($REXSEO_URLS[$path]))
+      // RETRY RESOLVE VIA PATHLIST
+      if(self::resolve_from_pathlist($path))
       {
-        $status = isset($REXSEO_URLS[$path]['status']) ? $REXSEO_URLS[$path]['status'] : 200;
-
-        switch($status)
-        {
-          case 301:
-          case 302:
-          case 303:
-          case 307:
-            $redirect = array('id'    => $REXSEO_URLS[$path]['id'],
-                              'clang' => $REXSEO_URLS[$path]['clang'],
-                              'status'=> $status);
-            return self::redirect($redirect);
-          default:
-            if(isset($REXSEO_URLS[$path]['params']))
-              self::populateGlobals($REXSEO_URLS[$path]['params'],false);
-            return self::setArticleId($REXSEO_URLS[$path]['id'],$REXSEO_URLS[$path]['clang']);
-        }
+        return;
       }
 
 
@@ -189,6 +180,42 @@ class RexseoRewrite
       self::setArticleId($notfound_id,$clang);
     }
   }
+
+
+  /**
+  * RESOLVE_FROM_PATHLIST()
+  *
+  * @param  $path  string  URL to look up in pathlist
+  * @return        boolean
+  */
+  function resolve_from_pathlist($path)
+  {
+    global $REXSEO_URLS;
+
+    if(isset($REXSEO_URLS[$path]))
+    {
+      $status = isset($REXSEO_URLS[$path]['status']) ? $REXSEO_URLS[$path]['status'] : 200;
+
+      switch($status)
+      {
+        case 301:
+        case 302:
+        case 303:
+        case 307:
+          $redirect = array('id'    => $REXSEO_URLS[$path]['id'],
+                            'clang' => $REXSEO_URLS[$path]['clang'],
+                            'status'=> $status);
+          self::redirect($redirect);
+          return true;
+        default:
+          if(isset($REXSEO_URLS[$path]['params']))
+            self::populateGlobals($REXSEO_URLS[$path]['params'],false);
+          self::setArticleId($REXSEO_URLS[$path]['id'],$REXSEO_URLS[$path]['clang']);
+          return true;
+      }
+    }
+    return false;
+}
 
 
   /**
@@ -256,6 +283,9 @@ class RexseoRewrite
     // modules/slices in the redaxo backend
     $url = str_replace('/redaxo/','/',$subdir.$url);
 
+    // STRIP LEADING SLASH IF A ABSOLUTE URL WAS GIVEN VIA REXSEO CUSTOM URL
+    $url = substr($url,0,8)=='/http://' ? ltrim($url,'/') : $url;
+
 
     // EP "REXSEO_POST_REWRITE"
     $ep_params = array('article_id'     => $id,
@@ -287,9 +317,11 @@ class RexseoRewrite
     global $REXSEO_IDS;
 
     $status   = isset($redirect['status']) ? $redirect['status'] : 200;
-    $location = $REXSEO_IDS[$redirect['id']][$redirect['clang']]['url'];
+    $location = rexseo::base().$REXSEO_IDS[$redirect['id']][$redirect['clang']]['url'];
 
-    while(@ob_end_clean());
+    while(ob_get_level()){
+      ob_end_clean();
+    }
 
     header('HTTP/1.1 '.$status);
     header('Location:'.$location);
@@ -508,18 +540,28 @@ function rexseo_generate_pathlist($params)
       $db->setQuery('SELECT `id`, `clang`, `path`, `startpage`,`art_rexseo_url` FROM '. $REX['TABLE_PREFIX'] .'article WHERE '. $where.' AND revision=0 OR revision IS NULL');
     }
 
+    // HARDCODED PATH: REDIRECT INDEX.PHP TO START-ARTICLE
+    $REXSEO_URLS['index.php']  = array('id'  => $REX['START_ARTICLE_ID'], 'clang' => $REX['ADDON']['rexseo']['settings']['homelang'], 'status' => 301);
+
     while($db->hasNext())
     {
       $pathname   = '';
       $id         = $db->getValue('id');
       $clang      = $db->getValue('clang');
       $path       = $db->getValue('path');
-      $rexseo_url = $db->getValue('art_rexseo_url');
+      $rexseo_url = trim($db->getValue('art_rexseo_url'));
 
       // FALLS REXSEO URL -> ERSETZEN
       if ($rexseo_url != '')
       {
-        $pathname = ltrim(trim($rexseo_url),'/'); // sanitize whitespaces & leading slash
+        if(substr($rexseo_url,0,7)=='http://')
+        {
+          $REXSEO_IDS[$id][$clang] = array('url' => $rexseo_url);
+          $db->next();
+          continue;
+        }
+
+        $pathname = ltrim($rexseo_url,'/'); // sanitize leading slash
         $pathname = urlencode($pathname);
         $pathname = str_replace('%2F','/',$pathname); // decode slahes..
 
@@ -541,6 +583,13 @@ function rexseo_generate_pathlist($params)
           foreach ($path as $p)
           {
             $ooc = OOCategory::getCategoryById($p, $clang);
+
+            // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
+            if(!is_a($ooc,'OOCategory')){
+              self::logError('couldn\'t create OOCategory object with params id='.$p.'/clang='.$clang.'',E_USER_WARNING);
+              continue;
+            }
+
             $name = $ooc->getName();
             unset($ooc);
 
@@ -549,6 +598,14 @@ function rexseo_generate_pathlist($params)
         }
 
         $ooa = OOArticle::getArticleById($id, $clang);
+
+        // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
+        if(!is_a($ooa,'OOArticle')){
+          self::logError('couldn\'t create OOArticle object with params id='.$id.'/clang='.$clang.'',E_USER_WARNING);
+          $db->next();
+          continue;
+        }
+
         if($ooa->isStartArticle())
         {
           $ooc = $ooa->getCategory();
