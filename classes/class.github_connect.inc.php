@@ -36,7 +36,7 @@ class github_connect
   /* constructor */
   public function __construct($repo_owner=false, $repo_name=false)
   {
-    global $REX; fb(class_exists('rex_socket'));
+    global $REX;
 
     $this->access_method = ini_get('allow_url_fopen')   ? 'fopen' : false;
     $this->access_method = function_exists('curl_init') ? 'curl'  : $this->access_method;
