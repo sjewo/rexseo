@@ -14,6 +14,11 @@
  * @version 1.5.3
  */
 
+
+
+/**
+ * Connect to GITHUB API v3
+ **/
 class github_connect
 {
   private $error;
@@ -28,17 +33,27 @@ class github_connect
   public  $api_response;
 
 
-  /* private */
-  private function registerError($err=false,$err_type=false)
+  /* constructor */
+  public function __construct($repo_owner=false, $repo_name=false)
   {
-      $err = 'CLASS GITHUB_CONNECT: '.$err.'.';
-      $this->error .= $err.'<br />'.PHP_EOL;
-      if($err_type)
-        trigger_error($err, $err_type);
+    global $REX; fb(class_exists('rex_socket'));
+
+    $this->access_method = ini_get('allow_url_fopen')   ? 'fopen' : false;
+    $this->access_method = function_exists('curl_init') ? 'curl'  : $this->access_method;
+    $this->access_method = class_exists('rex_socket')   ? 'socket': $this->access_method;
+
+    $this->error = $this->access_method==false ? 'no access method available' : false;
+
+    $this->repo_owner = !$repo_owner ? $this->registerError('no repo owner provided',E_USER_ERROR) : $repo_owner;
+    $this->repo_name  = !$repo_name  ? $this->registerError('no repo name provided' ,E_USER_ERROR) : $repo_name;
+
+    $this->api_baseurl = 'https://api.github.com/repos/'.$this->repo_owner.'/'.$this->repo_name.'/';
+    $this->api_sections = array('downloads','commits','issues','tags');
+
+    $this->html_baseurl = 'https://github.com/'.$this->repo_owner.'/'.$this->repo_name.'/';
   }
 
 
-  /* private */
   private function getApiResponse($url)
   {
     $response = self::getCachedResponse($url);
@@ -106,25 +121,39 @@ class github_connect
   }
 
 
-  /* constructor */
-  public function __construct($repo_owner=false, $repo_name=false)
+  private function registerError($err=false,$err_type=false)
   {
-    global $REX;
-
-    $this->access_method = ini_get('allow_url_fopen')   ? 'fopen' : false;
-    $this->access_method = function_exists('curl_init') ? 'curl'  : $this->access_method;
-    $this->access_method = class_exists('rex_socket')   ? 'socket': $this->access_method;
-
-    $this->error = $this->access_method==false ? 'no access method available' : false;
-
-    $this->repo_owner = !$repo_owner ? $this->registerError('no repo owner provided',E_USER_ERROR) : $repo_owner;
-    $this->repo_name  = !$repo_name  ? $this->registerError('no repo name provided' ,E_USER_ERROR) : $repo_name;
-
-    $this->api_baseurl = 'https://api.github.com/repos/'.$this->repo_owner.'/'.$this->repo_name.'/';
-    $this->api_sections = array('downloads','commits','issues','tags');
-
-    $this->html_baseurl = 'https://github.com/'.$this->repo_owner.'/'.$this->repo_name.'/';
+      $err = 'CLASS GITHUB_CONNECT: '.$err.'.';
+      $this->error .= $err.'<br />'.PHP_EOL;
+      if($err_type)
+        trigger_error($err, $err_type);
   }
+
+
+  // COMMON PUBLIC METHODS
+  //////////////////////////////////////////////////////////////////////////////
+
+
+  public function setQuery($query)
+  {
+    $this->getApiResponse($this->api_baseurl.$query);
+  }
+
+
+  public function setParam($param, $value)
+  {
+    $this->$param = $value;
+  }
+
+
+  public function getResponse()
+  {
+    return $this->api_response;
+  }
+
+
+  // ADDON SPECIFIC METHODS
+  //////////////////////////////////////////////////////////////////////////////
 
 
   public function getLatestVersion($current=false,$return='link',$regex='/([0-9]+\.[0-9]+\.[0-9]+).*/')
