@@ -21,7 +21,7 @@ $myroot = $REX['INCLUDE_PATH'].'/addons/'.$myself;
 
 
 try {
-  $gc = new github_connect('gn2netwerk','rexseo');
+  $gc = new rexseo_github_connect('gn2netwerk','rexseo');
   echo $gc->getList(rex_request('chapter', 'string'));
 } catch (Exception $e) {
   echo rex_warning($e->getMessage());
