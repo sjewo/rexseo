@@ -133,9 +133,13 @@ class github_connect
   //////////////////////////////////////////////////////////////////////////////
 
 
-  public function setQuery($query)
+  public function setQuery($query, $raw_query = false)
   {
-    $this->getApiResponse($this->api_baseurl.$query);
+    if($raw_query == false) {
+      $this->getApiResponse($this->api_baseurl.$query);
+    }else{
+      $this->getApiResponse($query);
+    }
   }
 
 
