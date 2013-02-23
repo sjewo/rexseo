@@ -572,7 +572,8 @@ function rexseo_generate_pathlist($params)
         // LANG SLUG
         if (count($REX['CLANG']) > 1 && $clang != $REX['ADDON']['rexseo']['settings']['hide_langslug'])
         {
-          $pathname = $REX['CLANG'][$clang].'/';
+          $pathname = '';
+          $pathname = rexseo_appendToPath($pathname, $REX['CLANG'][$clang], $id, $clang);
         }
 
         // pfad über kategorien bauen
