@@ -26,13 +26,15 @@ rex_register_extension('REXSEO_PATHLIST_CREATED', function($params) use($REX) {
   $REXSEO_URLS = $params['subject']['REXSEO_URLS'];
 
   foreach($REXSEO_IDS as $article_id => $clangs) {
-    foreach($clangs as $clang => $url) {
-      if(skip_check::isStartArticle($article_id) && skip_check::isEmpty($article_id,$clang)){
-        $redirect_id = skip_check::getRedirect($article_id,$clang);
+    foreach($clangs as $clang => $url) {                                                                                #FB::group($article_id.'::'.$clang.'::'.$url['url'], array("Collapsed"=>false));
+      if(skip_check::isStartArticle($article_id) &&
+         skip_check::isEmpty($article_id,$clang) &&
+         skip_check::isOnline($article_id,$clang)) {
+        $redirect_id = skip_check::getRedirect($article_id,$clang);                                                     #FB::log($redirect_id,' $redirect_id for '.$article_id);
         $params['subject']['REXSEO_URLS'][$REXSEO_IDS[$article_id][$clang]['url']]['id'] = (int) $redirect_id;
         $params['subject']['REXSEO_URLS'][$REXSEO_IDS[$article_id][$clang]['url']]['status'] = 302;
       }
-    }
+    }                                                                                                                   #FB::groupEnd();
   }
   return $params['subject'];
 });
@@ -45,24 +47,26 @@ class skip_check
 {
 
   public static function getRedirect($article_id,$clang=false,$ignore_articles=true)
-  {
+  {                                                                                                                     #FB::group(__CLASS__.'::'.__FUNCTION__.'::'.$article_id.'::'.$clang, array("Collapsed"=>false));
     if(!$ignore_articles){
-      foreach(skip_check::getCategoryArticles($article_id,$clang) as $article){
-        if($article->_id != $article_id && skip_check::isEmpty($article->_id)===false){
+      foreach(self::getCategoryArticles($article_id,$clang) as $article){                                               #FB::log($article,' $article');
+        if($article->_id != $article_id && self::isEmpty($article->_id)===false){                                       #FB::groupEnd();
           return $article->_id;
           break;
         }
       }
     }
 
-    $category_id = skip_check::getCategoryId($article_id,$clang=false);
-    foreach (skip_check::getSubcategories($category_id) as $OOCat) {
-      if(!skip_check::isEmpty($OOCat->_id,$OOCat->_clang)){
+    $category_id = self::getCategoryId($article_id,$clang=false);
+    foreach (self::getSubcategories($category_id) as $OOCat) {
+      if(!self::isEmpty($OOCat->_id,$OOCat->_clang)){                                                                   #FB::log($OOCat->_id,'NOT EMPTY');#FB::groupEnd();
         return $OOCat->_id;
         break;
+      }else{                                                                                                            #FB::log($OOCat->_id,'EMPTY');
+        return self::getRedirect($OOCat->_id,$OOCat->_clang,$ignore_articles);
       }
-    }
-
+    }                                                                                                                   #FB::groupEnd(); #FB::warn('why am i here?');
+                                                                                                                        #FB::groupEnd();
     return false;
   }
 
@@ -114,5 +118,23 @@ class skip_check
   {
     return OOCategory::getCategoryById($category_id)->getStartArticle();
   }
+
+
+  public static function isOnline($article_id, $clang=false, $inheritance=true)
+  {
+    $OOart  = OOArticle::getArticleById($article_id,$clang);
+    $status = $OOart->getValue('status');
+    if(!$inheritance || !$status) {
+      return $status;
+    } else {
+      foreach($OOart->getPathAsArray() as $k => $id) {
+        if(!self::isOnline($id, $clang, false)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
 
 }

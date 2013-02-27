@@ -35,7 +35,7 @@ class RexseoRewrite
   /**
   * LOGERROR()
   */
-  protected function logError($err_txt=false,$err_type=false,$trace=false)
+  public function logError($err_txt=false,$err_type=false,$trace=false)
   {
     global $REX;
 
@@ -572,7 +572,8 @@ function rexseo_generate_pathlist($params)
         // LANG SLUG
         if (count($REX['CLANG']) > 1 && $clang != $REX['ADDON']['rexseo']['settings']['hide_langslug'])
         {
-          $pathname = $REX['CLANG'][$clang].'/';
+          $pathname = '';
+          $pathname = rexseo_appendToPath($pathname, $REX['CLANG'][$clang], $id, $clang);
         }
 
         // pfad über kategorien bauen
@@ -586,7 +587,7 @@ function rexseo_generate_pathlist($params)
 
             // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
             if(!is_a($ooc,'OOCategory')){
-              self::logError('couldn\'t create OOCategory object with params id='.$p.'/clang='.$clang.'',E_USER_WARNING);
+              RexseoRewrite::logError('couldn\'t create OOCategory object with params id='.$p.'/clang='.$clang.'',E_USER_WARNING);
               continue;
             }
 
@@ -601,7 +602,7 @@ function rexseo_generate_pathlist($params)
 
         // PREVENT FATALS IN RARE CONDITIONS WHERE DB/CACHE ARE OUT OF SYNC
         if(!is_a($ooa,'OOArticle')){
-          self::logError('couldn\'t create OOArticle object with params id='.$id.'/clang='.$clang.'',E_USER_WARNING);
+          RexseoRewrite::logError('couldn\'t create OOArticle object with params id='.$id.'/clang='.$clang.'',E_USER_WARNING);
           $db->next();
           continue;
         }
