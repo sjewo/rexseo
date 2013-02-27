@@ -26,7 +26,7 @@ class rexseo_select extends rex_select {
     global $REX;
 
 
-    if(!strpos($REX['LANG'],'utf'))	{
+    if(!rex_lang_is_utf8())	{
       $key = utf8_decode($key);
       $value = utf8_decode($value);
     }
