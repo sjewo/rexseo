@@ -214,6 +214,10 @@ class rexseo_sitemap
   public function send()
   {
     $map = self::get();
+    
+    while(ob_get_level()){
+      ob_end_clean();
+    }
 
     switch($this->mode)
     {
