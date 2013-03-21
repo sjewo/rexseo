@@ -19,7 +19,7 @@
 /**
  * Connect to GITHUB API v3
  **/
-class github_connect
+class rexseo_github_base
 {
   public $error;
   public $access_method;

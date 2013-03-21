@@ -19,7 +19,7 @@
 /**
  * Connect to GITHUB API v3
  **/
-class rexseo_github_connect extends github_connect
+class rexseo_github_functions extends rexseo_github_base
 {
 
   public function getLatestVersion($current=false,$return='link',$regex='/([0-9]+\.[0-9]+\.[0-9]+).*/')

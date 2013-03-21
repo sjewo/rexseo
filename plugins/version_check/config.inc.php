@@ -23,7 +23,7 @@ $myroot = $REX['INCLUDE_PATH'].'/addons/rexseo/plugins/'.$myself;
 
 // INCLUDES
 ////////////////////////////////////////////////////////////////////////////////
-require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.github_connect.inc.php';
+require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_github_base.inc.php';
 
 // NOTIFY DOWNLOADABLE UPDATE
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ rex_register_extension('ADDONS_INCLUDED',
   function() use($REX)
   {
     try {
-      $gc = new github_connect('gn2netwerk','rexseo');
+      $gc = new rexseo_github_base('gn2netwerk','rexseo');
       $new_rexseo_version = $gc->getLatestVersion($REX['ADDON']['version']['rexseo'],'link');
     } catch (Exception $e) {
       $new_rexseo_version = '';
