@@ -30,6 +30,7 @@ class rexseo_github_base
   public $api_sections;
   public $cache_life = 3600;
   public $api_response;
+  public static $query_log = array();
 
 
   /* constructor */
@@ -59,8 +60,10 @@ class rexseo_github_base
 
     if($response!==false){
       $this->api_response = json_decode($response);
+      self::$query_log[] = array('url' => $url, 'from_cache' => true);
       return;
     }
+    self::$query_log[] = array('url' => $url, 'from_cache' => false);
 
     switch($this->access_method)
     {
