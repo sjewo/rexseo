@@ -23,7 +23,7 @@ $REX['ADDON'][$myself]['VERSION'] = array
 (
 'VERSION'      => 1,
 'MINORVERSION' => 5,
-'SUBVERSION'   => 4,
+'SUBVERSION'   => '5 beta1',
 );
 
 $REX['ADDON']['rxid'][$myself]        = '750';
