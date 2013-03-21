@@ -31,7 +31,7 @@ rex_register_extension('ADDONS_INCLUDED',
   function() use($REX)
   {
     try {
-      $gc = new rexseo_github_base('gn2netwerk','rexseo');
+      $gc = new rexseo_github_functions('gn2netwerk','rexseo');
       $new_rexseo_version = $gc->getLatestVersion($REX['ADDON']['version']['rexseo'],'link');
     } catch (Exception $e) {
       $new_rexseo_version = '';
