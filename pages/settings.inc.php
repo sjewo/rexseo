@@ -36,7 +36,6 @@ $CAST = array (
       'homelang'                   => 'int',
       'allow_articleid'            => 'int',
       'levenshtein'                => 'int',
-      'expert_settings'            => 'int',
       'alert_setup'                => 'int',
       'first_run'                  => 'int',
       'rewrite_params'             => 'int',
@@ -304,20 +303,6 @@ $urlencode_select->addOption('Kodierung per urlencode',1);
 $urlencode_select->setSelected($REX['ADDON'][$myself]['settings']['urlencode']);
 
 
-// EXPERT SETTINGS CHECKBOX OPTIONS
-////////////////////////////////////////////////////////////////////////////////
-if($REX['ADDON'][$myself]['settings']['expert_settings'] == 1)
-{
-  $expert_display = '';
-  $expert_checked = 'checked="checked"';
-}
-else
-{
-  $expert_display = 'display:none;';
-  $expert_checked = '';
-}
-
-
 // FORM
 ////////////////////////////////////////////////////////////////////////////////
 echo '
@@ -368,8 +353,6 @@ foreach ($REX['CLANG'] as $id => $str)
 }
 
 echo '
-    <div id="expert_block" style="'.$expert_display.'margin:0;padding:0;">
-
       <fieldset class="rex-form-col-1">
         <legend>Page Title</legend>
         <div class="rex-form-wrapper">
@@ -464,18 +447,12 @@ echo '
         </div><!-- /rex-form-wrapper -->
       </fieldset>
 
-    </div><!-- /expert -->
 
       <fieldset class="rex-form-col-1">
         <legend>&nbsp;</legend>
         <div class="rex-form-wrapper">
 
           <div class="rex-form-row rex-form-element-v2">
-            <p  class="rex-form-checkbox"style="display:inline !important;">
-              <label for="expert_settings" style="width:145px !important;">Erweiterte Einstellungen</label>
-              <input type="checkbox" '.$expert_checked.' value="1" id="expert_settings" name="expert_settings">
-            </p>
-
             <p class="rex-form-submit">
               <input class="rex-form-submit" type="submit" id="sendit" name="sendit" value="Einstellungen speichern" />
             </p>
@@ -506,14 +483,6 @@ jQuery(function($) {
     $(this).html(p.join(":"));
     });
   });
-
-  $("#expert_settings").click(function() {
-    $("#expert_block").slideToggle("slow");
-  });
-
-  if($("#expert_settings").is(":checked")) {
-    $("#expert_block").show();
-  }
 
   // toggle params_starter input
   $("#rewrite_params").change(function() {
