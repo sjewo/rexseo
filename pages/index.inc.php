@@ -43,9 +43,7 @@ if ($REX['REDAXO'])
 
 // INCLUDES
 ////////////////////////////////////////////////////////////////////////////////
-if(!class_exists('rexseo_socket')) {
-  require_once $myroot.'/classes/class.rexseo_socket.inc.php';
-}
+require_once $myroot.'/classes/class.rexseo_socket.inc.php';
 require_once $myroot.'/classes/class.rexseo_github_base.inc.php';
 require_once $myroot.'/classes/class.rexseo_github_functions.inc.php';
 require_once $myroot.'/functions/function.rexseo_helpers.inc.php';
