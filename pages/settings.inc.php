@@ -107,13 +107,25 @@ if($REX['ADDON'][$myself]['settings']['first_run'] == 1 && file_exists($backup))
   echo rex_info('Daten wurden aus Backup ins Formular &uuml;bernommen - bitte Einstellungen speichern!');
 
   // IMPORT REDIRECTS FROM BACKUP CONFIG TO DB
-  $db = new rex_sql;
-  $db->setQuery('SELECT * FROM `'.$table.'`;');
-
-  if(isset($REX['ADDON']['rexseo']['settings']['301s']) &&
-     count($REX['ADDON']['rexseo']['settings']['301s'])>0 &&
-     $db->getRows()==0)
+  if( isset($REX['ADDON']['rexseo']['settings']['301s']) && count($REX['ADDON']['rexseo']['settings']['301s'])>0 )
   {
+    $db = rex_sql::factory();
+
+    $qry = 'CREATE TABLE IF NOT EXISTS `'.$REX['TABLE_PREFIX'].'rexseo_redirects` (
+      `id` int(4) NOT NULL AUTO_INCREMENT,
+      `createdate` int(11) NOT NULL,
+      `updatedate` int(11) NOT NULL,
+      `expiredate` int(11) NOT NULL,
+      `creator` varchar(32) NOT NULL,
+      `status` int(1) NOT NULL DEFAULT \'1\',
+      `from_url` text NOT NULL,
+      `to_article_id` int(4) NOT NULL,
+      `to_clang` tinyint(2) NOT NULL,
+      `http_status` int(3) NOT NULL DEFAULT \'301\',
+      PRIMARY KEY (`id`)
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;';
+    $db->setQuery($qry);
+
     $qry = 'INSERT INTO `'.$table.'` (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`) VALUES';
     $date = time();
     if(!isset($REX['ADDON'][$myself]['settings']['default_redirect_expire']))
