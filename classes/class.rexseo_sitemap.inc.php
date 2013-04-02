@@ -191,16 +191,6 @@ class rexseo_sitemap
           }
         }
 
-        // EXTENSIONPOINT REXSEO_SITEMAP_INJECT
-        $inject = rex_register_extension_point('REXSEO_SITEMAP_INJECT');
-        if(is_array($inject) && count($inject)>0)
-        {
-          foreach($inject as $key => $art)
-          {
-            $xml_sitemap .= self::xml_loc_fragment($art['url'],$art['lastmod'],$art['changefreq'],$art['priority']);
-          }
-        }
-
         $xml_sitemap .= '</urlset>';
 
         return $xml_sitemap;
