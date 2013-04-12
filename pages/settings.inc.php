@@ -312,6 +312,7 @@ $urlencode_select->setName('urlencode');
 $urlencode_select->setAttribute('id','rewrite_params');
 $urlencode_select->addOption('Zeichenersetzung per lang Datei',0);
 $urlencode_select->addOption('Kodierung per urlencode',1);
+$urlencode_select->addOption('Zeichenersetzung und nachfolgend Kodierung per urlencode',2);
 $urlencode_select->setSelected($REX['ADDON'][$myself]['settings']['urlencode']);
 
 

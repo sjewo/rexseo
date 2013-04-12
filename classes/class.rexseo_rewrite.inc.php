@@ -753,15 +753,17 @@ function rexseo_appendToPath($path, $name, $article_id, $clang)
 
   if ($name != '')
   {
-    if($REX['ADDON']['rexseo']['settings']['urlencode'] == 0)
-    {
-      $name = strtolower(rexseo_parse_article_name($name, $article_id, $clang));
-      $name = str_replace('+',$REX['ADDON']['rexseo']['settings']['url_whitespace_replace'],$name);
-    }
-    else
-    {
-      $name = str_replace('/','-',$name);
-      $name = rawurlencode($name);
+    switch($REX['ADDON']['rexseo']['settings']['urlencode']){
+      case 0:
+        $name = strtolower(rexseo_parse_article_name($name));
+        break;
+      case 1:
+        $name = rawurlencode(str_replace('/','-',$name));
+        break;
+      case 2:
+        $name = rexseo_replace_special_chars($name);
+        $name = rawurlencode(str_replace('/','-',$name));
+        break;
     }
 
     // SANITIZE LAST CHARACTER
@@ -774,14 +776,40 @@ function rexseo_appendToPath($path, $name, $article_id, $clang)
 
 
 /**
-* re-implemented from Redaxo core with added EP
-*
 * replaces special chars in article name
 * @param $name       (string) article name
 * @param $article_id (string) article id
 * @param $clang      (string) clang
 */
-function rexseo_parse_article_name($name, $article_id, $clang)
+function rexseo_parse_article_name($name)
+{
+
+  // SANITIZE LAST CHARACTER
+  $name = rtrim($name,'-');
+
+  return
+    // + durch - ersetzen
+    str_replace('+',$REX['ADDON']['rexseo']['settings']['url_whitespace_replace'],
+        // ggf uebrige zeichen url-codieren
+        urlencode(
+          // mehrfach hintereinander auftretende spaces auf eines reduzieren
+          preg_replace('/ {2,}/',' ',
+            // alle sonderzeichen raus
+            preg_replace('/[^a-zA-Z_\-0-9 ]/', '',
+              // sprachspezifische zeichen umschreiben
+              rexseo_replace_special_chars($name)
+            )
+          )
+        )
+    );
+}
+
+
+/**
+* replaces special chars in string
+* @param $str        (string) article name
+*/
+function rexseo_replace_special_chars($name)
 {
   static $firstCall = true;
   static $translation;
@@ -799,28 +827,11 @@ function rexseo_parse_article_name($name, $article_id, $clang)
       );
 
     // EXTENSION POINT
-    $translation = rex_register_extension_point('REXSEO_SPECIAL_CHARS',$translation,array('article_id'=>$article_id,'clang'=>$clang));
+    $translation = rex_register_extension_point('REXSEO_SPECIAL_CHARS',$translation);
 
     $firstCall = false;
   }
 
+  return str_replace($translation['search'], $translation['replace'], $name);
 
-  // SANITIZE LAST CHARACTER
-  $name = rtrim($name,'-');
-
-  return
-    // + durch - ersetzen
-    str_replace('+','-',
-        // ggf uebrige zeichen url-codieren
-        urlencode(
-          // mehrfach hintereinander auftretende spaces auf eines reduzieren
-          preg_replace('/ {2,}/',' ',
-            // alle sonderzeichen raus
-            preg_replace('/[^a-zA-Z_\-0-9 ]/', '',
-              // sprachspezifische zeichen umschreiben
-              str_replace($translation['search'], $translation['replace'], $name)
-            )
-          )
-        )
-    );
 }
