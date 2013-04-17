@@ -452,12 +452,6 @@ function rexseo_manage_pathlist_events($params)
   $where = $wait_last_clang = $clear_pathlist = false;
   switch($params['extension_point'])
   {
-    case 'CAT_DELETED':
-    case 'ART_DELETED':
-      $wait_last_clang = true;
-      rexseo_unset_pathitem($params['id']);
-      break;
-
     case 'CAT_UPDATED':
     case 'ART_UPDATED':
       $where = '(id='. $params['id'] .' AND clang='. $params['clang'] .') OR (path LIKE "%|'. $params['id'] .'|%" AND clang='. $params['clang'] .')';
@@ -477,6 +471,8 @@ function rexseo_manage_pathlist_events($params)
       }
       break;
 
+    case 'CAT_DELETED':
+    case 'ART_DELETED':
     case 'ART_TO_STARTPAGE':
       $wait_last_clang = true;
       $clear_pathlist  = true;
@@ -537,31 +533,6 @@ function rexseo_get_pathlist_data($query)
     $data = $db->getArray($query);
   }
   return $data;
-}
-
-
-/**
-* REXSEO_UNSET_PATHITEM()
-*
-* delete single article from path-arrays
-*/
-function rexseo_unset_pathitem($id=false)
-{
-  global $REXSEO_IDS, $REXSEO_URLS;
-
-  if($id)
-  {
-    unset($REXSEO_IDS[$id]);
-
-    foreach($REXSEO_URLS as $k => $v)
-    {
-      if($v['id']==$id)
-      {
-        unset($REXSEO_URLS[$k]);
-        break;
-      }
-    }
-  }
 }
 
 
