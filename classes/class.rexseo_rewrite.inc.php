@@ -799,6 +799,7 @@ function rexseo_appendToPath($path, $name, $article_id, $clang)
 */
 function rexseo_parse_article_name($name)
 {
+  global $REX;
 
   // SANITIZE LAST CHARACTER
   $name = rtrim($name,'-');
