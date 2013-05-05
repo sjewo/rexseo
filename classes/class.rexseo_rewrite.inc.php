@@ -543,8 +543,12 @@ function rexseo_get_pathlist_data($query)
 * @author markus.staab[at]redaxo[dot]de Markus Staab
 * @package redaxo4.2
 */
-function rexseo_generate_pathlist($data, $clear_pathlist = false)
+function rexseo_generate_pathlist($data = false, $clear_pathlist = false)
 {
+  if(!$data) {
+    return rexseo_manage_pathlist_events(null);
+  }
+
   global $REX, $REXSEO_IDS, $REXSEO_URLS;
 
   if(file_exists(REXSEO_PATHLIST)) {
