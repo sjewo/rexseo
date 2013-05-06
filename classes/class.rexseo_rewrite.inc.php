@@ -232,14 +232,6 @@ class RexseoRewrite
       return $params['subject'];
     }
 
-
-    // EP "REXSEO_PRE_REWRITE"
-    $url = rex_register_extension_point('REXSEO_PRE_REWRITE', false, $params);
-    if($url !== false)
-    {
-      return $url;
-    }
-
     global $REX, $REXSEO_IDS;
 
     $id             = $params['id'];
