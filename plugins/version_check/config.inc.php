@@ -23,6 +23,7 @@ $myroot = $REX['INCLUDE_PATH'].'/addons/rexseo/plugins/'.$myself;
 
 // INCLUDES
 ////////////////////////////////////////////////////////////////////////////////
+require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_socket.inc.php';
 require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_github_base.inc.php';
 require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_github_functions.inc.php';
 

@@ -82,9 +82,14 @@ class rexseo_github_base
       break;
 
       case'socket':
-        $socket = rexseo_socket::createByUrl($url);
-        $socket->doGet();
-        $response = $socket->getBody();
+        $socket = rexseo_socket::factoryUrl($url);
+        $response = $socket->doGet();
+        if($response->isOk()) {
+          $response = $response->getBody();
+        }else{
+          $this->error = 'socket response broken';
+          return;
+        }
       break;
     }
 

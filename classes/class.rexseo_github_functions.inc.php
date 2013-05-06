@@ -37,6 +37,11 @@ class rexseo_github_functions extends rexseo_github_base
     {
       $this->getApiResponse($this->api_baseurl.'tags');
 
+      if(!is_array($this->api_response)){
+        $this->registerError('unexpected API response');
+        return;
+      }
+
       // SORT VERSIONS FROM API RESPONSE
       $highest_version = '0.0.0';
       foreach($this->api_response as $k => $tag)
