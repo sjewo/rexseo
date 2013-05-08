@@ -471,3 +471,28 @@ function rexseo_htaccess_update_redirects(){
     redirects_manager::updateHtaccess();
   }
 }
+
+function rexseo_article_meta_counter_assets($params)
+{
+  return $params['subject'].'
+<!-- REXSEO -->
+<style>
+.label-subline {
+  display:inline-block;
+  margin:6px 0 0 0;
+  color:#B8B8B8;
+  font-size:10px;
+  font-family: monospace;
+}
+label.art_description .label-subline .keywordcount {
+  display:none;
+}
+label.art_keywords .label-subline .wordcount,
+label.art_keywords .label-subline .charcount {
+  display:none;
+}
+</style>
+<script src="../files/addons/rexseo/counter.js"></script>
+<!-- /REXSEO -->
+';
+}

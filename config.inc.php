@@ -119,4 +119,6 @@ if(!function_exists('rexseo_init')){
 }
 
 
-?>
+if(rex_request('page')=='content' && rex_request('mode')=='meta') {
+  rex_register_extension('PAGE_HEADER', 'rexseo_article_meta_counter_assets' );
+}

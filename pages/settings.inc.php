@@ -348,16 +348,26 @@ foreach ($REX['CLANG'] as $id => $str)
 
         <div class="rex-form-row">
           <p class="rex-form-col-a rex-form-select">
-          <label for="def_desc" class="helptopic">Description:<br /><br /><em style="color:gray;font-size:10px;">z.B. My super description</em></label>
-            <textarea id="def_desc_'.$id.'" name="def_desc['.$id.']">'.$def_desc.'</textarea>
-
+            <label for="def_desc" class="helptopic">
+              Description:<br />
+              <em class="label-subline">
+                words: <span id="def_desc_'.$id.'_wordcount">0</span><br />
+                chars: <span id="def_desc_'.$id.'_charcount">0</span>
+              </em>
+            </label>
+            <textarea class="input-count" id="def_desc_'.$id.'" name="def_desc['.$id.']">'.$def_desc.'</textarea>
           </p>
         </div><!-- /rex-form-row -->
 
         <div class="rex-form-row">
           <p class="rex-form-col-a rex-form-select">
-            <label for="def_keys" class="helptopic">Keywords:<br /><br /><em style="color:gray;font-size:10px;">z.B. My, list, of, keywords</em></label>
-            <textarea id="def_keys_'.$id.'" name="def_keys['.$id.']">'.$def_keys.'</textarea>
+            <label for="def_keys" class="helptopic">
+              Keywords:<br />
+              <em class="label-subline">
+                keywords: <span id="def_keys_'.$id.'_keywordcount">0</span>
+              </em>
+            </label>
+            <textarea class="input-count" id="def_keys_'.$id.'" name="def_keys['.$id.']">'.$def_keys.'</textarea>
           </p>
         </div><!-- /rex-form-row -->
 
@@ -374,7 +384,7 @@ echo '
             <p class="rex-form-col-a rex-form-text">
               <label for="title_schema" class="helptopic">Title Elemente:</label>
               <input id="title_schema" class="rex-form-text" type="text" name="title_schema" value="'.stripslashes($REX['ADDON'][$myself]['settings']['title_schema']).'" /><br />
-              <em style="color:gray;font-size:10px;">%B = breadcrumb | %N = article name | %C = category name | %S = server/host</em>
+              <em class="label-subline">%B = breadcrumb | %N = article name | %C = category name | %S = server/host</em>
             </p>
           </div><!-- /rex-form-row -->
 
@@ -479,7 +489,7 @@ echo '
 </div><!-- /rex-form -->
 
 <script type="text/javascript">
-<!--
+
 jQuery(function($) {
 
   jQuery(document).ready(function() {
@@ -491,10 +501,11 @@ jQuery(function($) {
 
     // AUTOMATIC HELP TOPIC LINK
     $(".helptopic").each(function() {
-    var p = $(this).html().split(":");
-    p[1] = \' <a class="help-icon" title="Hilfe zum Thema anzeigen" href="index.php?page=rexseo&subpage=help&chapter=settings&highlight=\'+escape(p[0]+\':\')+\'">?</a>\'+p[1];
-    $(this).html(p.join(":"));
+      var p = $(this).html().split(":");
+      p[1] = \' <a class="help-icon" title="Hilfe zum Thema anzeigen" href="index.php?page=rexseo&subpage=help&chapter=settings&highlight=\'+escape(p[0]+\':\')+\'">?</a>\'+p[1];
+      $(this).html(p.join(":"));
     });
+
   });
 
   // toggle params_starter input
@@ -530,9 +541,9 @@ echo '
     });
 
 });
-//-->
-</script>
 
+</script>
+<script src="../files/addons/rexseo/counter.js"></script>
 ';
 
 unset($levenshtein_select,$allow_articleid_select,$homeurl_select,$url_ending_select,$url_schema_select);
