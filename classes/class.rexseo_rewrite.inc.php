@@ -149,6 +149,18 @@ class RexseoRewrite
       }
 
 
+      // GET ID FROM EXTENSION POINT
+      $ep = rex_register_extension_point('REXSEO_ARTICLE_ID_NOT_FOUND', '');
+      if(isset($ep['article_id']) && $ep['article_id'] > 0)
+      {
+        if(isset($ep['clang']) && $ep['clang'] > -1)
+        {
+          $clang = $ep['clang'];
+        }
+        return self::setArticleId($ep['article_id'],$clang);
+      }
+
+
       // CHECK CLOSEST URL MATCH VIA LEVENSHTEIN
       if($this->use_levenshtein)
       {
@@ -161,18 +173,6 @@ class RexseoRewrite
         $best = explode('#', array_shift($levenshtein));
 
         return self::setArticleId($best[0], $best[1]);
-      }
-
-
-      // GET ID FROM EXTENSION POINT
-      $ep = rex_register_extension_point('REXSEO_ARTICLE_ID_NOT_FOUND', '');
-      if(isset($ep['article_id']) && $ep['article_id'] > 0)
-      {
-        if(isset($ep['clang']) && $ep['clang'] > -1)
-        {
-          $clang = $ep['clang'];
-        }
-        return self::setArticleId($ep['article_id'],$clang);
       }
 
 
