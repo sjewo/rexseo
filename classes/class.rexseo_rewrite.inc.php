@@ -172,7 +172,9 @@ class RexseoRewrite
         ksort($levenshtein);
         $best = explode('#', array_shift($levenshtein));
 
-        return self::setArticleId($best[0], $best[1]);
+        return self::redirect(array('id'    => $best[0],
+                                    'clang' => $best[1],
+                                    'status'=> 301)     );
       }
 
 
