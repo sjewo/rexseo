@@ -150,7 +150,7 @@ class RexseoRewrite
 
 
       // GET ID FROM EXTENSION POINT
-      $ep = rex_register_extension_point('REXSEO_ARTICLE_ID_NOT_FOUND', '');
+      $ep = rex_register_extension_point('REXSEO_ARTICLE_ID_NOT_FOUND', '', array('path' => $path, 'request' => $_SERVER['REQUEST_URI']));
       if(isset($ep['article_id']) && $ep['article_id'] > 0)
       {
         if(isset($ep['clang']) && $ep['clang'] > -1)

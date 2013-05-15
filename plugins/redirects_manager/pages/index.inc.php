@@ -54,8 +54,8 @@ rex_title('RexSEO <span class="addonversion">'.$REX['ADDON']['version']['rexseo'
 if($func=='update_redirect_settings')
 {
   // BATCH REDIRECTS
-  $batch = rex_request('redirects','string','false');
-  if($batch!='false')
+  $batch = trim(rex_request('redirects','string'));
+  if($batch != '')
   {
     $db = rex_sql::factory();
     $qry = 'INSERT INTO `'.$table.'` (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`) VALUES';
@@ -87,6 +87,7 @@ if($func=='update_redirect_settings')
         'redirects'               => 'unset',
         'auto_redirects'          => 'int',
         'default_redirect_expire' => 'int',
+        'register_404'            => 'int',
         );
 
   // GET ADDON SETTINGS FROM REQUEST
@@ -204,6 +205,10 @@ if($func == '' || $func=='update_redirect_settings')
                   ? ''
                   : $REX['ADDON'][$myself]['settings']['auto_redirects'];
 
+  $register_404   = !isset($REX['ADDON'][$myself]['settings']['register_404'])
+                  ? 0
+                  : $REX['ADDON'][$myself]['settings']['register_404'];
+
   $auto_redirects_select = new rexseo_select();
   $auto_redirects_select->setSize(1);
   $auto_redirects_select->setName('auto_redirects');
@@ -211,6 +216,13 @@ if($func == '' || $func=='update_redirect_settings')
   $auto_redirects_select->addOption('Vollautomatisch (Redirects anlegen & aktivieren)',1);
   $auto_redirects_select->addOption('Halbautomatisch (Redirects anlegen aber inaktiv setzen)',2);
   $auto_redirects_select->setSelected($auto_redirects);
+
+  $register_404_select = new rexseo_select();
+  $register_404_select->setSize(1);
+  $register_404_select->setName('register_404');
+  $register_404_select->addOption('Inaktiv',0);
+  $register_404_select->addOption('Aktiv',1);
+  $register_404_select->setSelected($register_404);
 
 
   echo '
@@ -228,15 +240,22 @@ if($func == '' || $func=='update_redirect_settings')
 
             <div class="rex-form-row">
               <p class="rex-form-col-a rex-form-select">
-                <label for="auto_redirects" class="helptopic">Auto-Redirects:</label>
+                <label for="auto_redirects" class="no-helptopic">Auto-Redirects:</label>
                   '.$auto_redirects_select->get().'
+              </p>
+            </div><!-- /rex-form-row -->
+
+            <div class="rex-form-row">
+              <p class="rex-form-col-a rex-form-select">
+                <label for="auto_redirects" class="no-helptopic">Register-404:</label>
+                  '.$register_404_select->get().'
               </p>
             </div><!-- /rex-form-row -->
 
 
             <div class="rex-form-row">
               <p class="rex-form-col-a rex-form-text">
-                <label for="default_redirect_expire" class="helptopic">Default Expire:</label>
+                <label for="default_redirect_expire" class="no-helptopic">Default Expire:</label>
                 <input id="default_redirect_expire" class="rex-form-text" style="width:50px;" type="text" name="default_redirect_expire" value="'.stripslashes($default_redirect_expire).'" /> Tage
               </p>
             </div><!-- /rex-form-row -->

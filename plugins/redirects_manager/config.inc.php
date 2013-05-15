@@ -10,19 +10,12 @@
  * @package redaxo 4.3.x/4.4.x
  * @version 0.1.0 dev
  */
-
-// RUN IN BACKEND ONLY
-////////////////////////////////////////////////////////////////////////////////
-if(!$REX['REDAXO']){
-  return;
-}
-
 $myself = 'redirects_manager';
 $myroot = $REX['INCLUDE_PATH'].'/addons/rexseo/plugins/'.$myself;
 
-$REX['ADDON']['rxid'][$myself] = '9999';
-$REX['ADDON']['version'][$myself] = '0.1.0 dev';
-$REX['ADDON']['author'][$myself] = 'rexdev.de';
+$REX['ADDON']['rxid'][$myself]        = '9999';
+$REX['ADDON']['version'][$myself]     = '0.1.0 dev';
+$REX['ADDON']['author'][$myself]      = 'rexdev.de';
 $REX['ADDON']['supportpage'][$myself] = 'forum.redaxo.de';
 
 // DYN SETTINGS
@@ -30,9 +23,38 @@ $REX['ADDON']['supportpage'][$myself] = 'forum.redaxo.de';
 // --- DYN
 $REX["ADDON"]["redirects_manager"]["settings"] = array (
   'auto_redirects' => 0,
+  'register_404' => 0,
   'default_redirect_expire' => 60,
 );
 // --- /DYN
+
+// 404 REGISTER
+////////////////////////////////////////////////////////////////////////////////
+if(!$REX['REDAXO'] && $REX["ADDON"]["redirects_manager"]["settings"]['register_404'] == 1)
+{
+  rex_register_extension('REXSEO_ARTICLE_ID_NOT_FOUND','rexseo_register_404');
+  function rexseo_register_404($params)
+  {
+    $request = mysql_real_escape_string($params['request']);
+    $db      = rex_sql::factory();
+    $db->setQuery( 'SELECT * FROM `rex_rexseo_redirects` WHERE `from_url`=\''.$request.'\';');
+    if($db->getRows() == 0)
+    {
+      $date   = time();
+      $expire = $date + ($REX['ADDON']['redirects_manager']['settings']['default_redirect_expire']*24*60*60);
+      $db->setQuery( 'INSERT INTO `rex_rexseo_redirects`
+                     (`id`, `createdate`, `updatedate`, `expiredate`, `creator`, `status`, `from_url`, `to_article_id`, `to_clang`, `http_status`)
+                     VALUES (NULL, "'.$date.'", "'.$date.'", "'.$expire.'", "registered 404", "0", "'.$request.'", "", "", "301");' );
+    }
+  }
+}
+
+// BACKEND ONLY FROM HERE
+////////////////////////////////////////////////////////////////////////////////
+if(!$REX['REDAXO']){
+  return;
+}
+
 
 
 // INCLUDES
@@ -56,14 +78,14 @@ if ($REX['REDAXO'])
   rex_register_extension('REX_FORM_SAVED','rexseo_ht_update_callback');
   function rexseo_ht_update_callback($params)
   {
-    redirects_manager::updateHtaccess();                                         #FB::log($params,__FUNCTION__.' $params');
+    redirects_manager::updateHtaccess();
   }
 }
 
 
 // AUTO CREATE REDIRECTS FROM CHANGED URLS
 ////////////////////////////////////////////////////////////////////////////////
-if ($REX['REDAXO'] && $REX['MOD_REWRITE'] !== false && $REX['ADDON']['redirects_manager']['settings']['auto_redirects']!=0)
+if ($REX['REDAXO'] && $REX['MOD_REWRITE'] && $REX['ADDON']['redirects_manager']['settings']['auto_redirects'] == 1)
 {
   rex_register_extension('REXSEO_PATHLIST_BEFORE_REBUILD','rexseo_remember_prior_pathlist');
   function rexseo_remember_prior_pathlist($params)
