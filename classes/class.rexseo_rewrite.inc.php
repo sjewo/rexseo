@@ -510,9 +510,13 @@ function rexseo_manage_pathlist_events($params)
   rexseo_generate_pathlist($data, $clear_pathlist);
 }
 
-function rexseo_get_pathlist_data($query)
+function rexseo_get_pathlist_data($query = false)
 {
   global $REX;
+
+  if(!$query) {
+    $query = 'SELECT `id`, `clang`, `path`, `startpage`,`art_rexseo_url` FROM '. $REX['TABLE_PREFIX'] .'article WHERE 1=1 AND revision=0 OR revision IS NULL';
+  }
 
   $db = rex_sql::factory();
    // REVISION FIX
@@ -540,7 +544,7 @@ function rexseo_get_pathlist_data($query)
 function rexseo_generate_pathlist($data = false, $clear_pathlist = false)
 {
   if(!$data) {
-    return rexseo_manage_pathlist_events(null);
+    $data = rexseo_get_pathlist_data();
   }
 
   global $REX, $REXSEO_IDS, $REXSEO_URLS;
