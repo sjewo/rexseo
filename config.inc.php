@@ -34,6 +34,14 @@ $REX['ADDON'][$myself]['debug_log']   = 0;
 $REX['ADDON'][$myself]['settings']['default_redirect_expire'] = 60;
 $REX['PROTOCOL'] = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https://' : 'http://';
 
+// FIX FOR IIS: SET REQUEST_URI, IF NOT AVAILABLE
+////////////////////////////////////////////////////////////////////////////////
+if(!isset($_SERVER['REQUEST_URI']))
+{
+  $_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'], 1);
+  if(isset($_SERVER['QUERY_STRING']))
+    $_SERVER['REQUEST_URI'].='?'.$_SERVER['QUERY_STRING'];
+}
 
 // INCLUDES
 ////////////////////////////////////////////////////////////////////////////////
