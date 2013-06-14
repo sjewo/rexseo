@@ -57,7 +57,7 @@ class rexseo_meta {
     $this->def_desc         = $REX['ADDON']['rexseo']['settings']['def_desc'];
     $this->protocol         = isset($REX['PROTOCOL']) ? $REX['PROTOCOL'] : self::get_protocol();
     $this->base_url         = $this->protocol.$this->http_host.'/'.$this->install_subdir;
-    $this->rex_is_iso       = strpos($REX['LANG'], '_utf8')===false ? true : false;
+    $this->rex_is_iso       = rex_lang_is_utf8() ? false : true;
     $this->encoder          = 'htmlspecialchars';
   }
 
