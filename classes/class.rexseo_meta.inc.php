@@ -129,8 +129,11 @@ class rexseo_meta {
     // CUSTOM REXSEO TITLE (OVERRIDES ANY OTHER TITLE/SCHEME)
     if($art_rexseo_title!='')
     {
-      $title_schema = $art_rexseo_title;
+        $title_schema = $art_rexseo_title;
     }
+
+    // EXTENSION POINT
+    $title_schema = rex_register_extension_point('REXSEO_META_TITLE', $title_schema, array('article_id'=>$this->article_id,'%B'=>$B,'%N'=>$N,'%S'=>$S,'%C'=>$C));
 
     // REPLACE PLACEHOLDERS
     $title = str_replace(array('%B','%N','%S','%C'),array($B,$N,$S,$C),$title_schema);
@@ -147,6 +150,10 @@ class rexseo_meta {
   public function get_keywords()
   {
     $keys = self::getMetaField($this->article_id,"art_keywords",$this->def_keys[$this->clang]);
+
+    // EXTENSION POINT
+    $keys = rex_register_extension_point('REXSEO_META_KEYWORDS', $keys, array('article_id'=>$this->article_id,'default'=>$this->def_keys[$this->clang]));
+
     $keys = self::sanitize_keywords($keys);
 
     return self::encode_string($keys);
@@ -161,6 +168,10 @@ class rexseo_meta {
   public function get_description()
   {
     $desc = self::getMetaField($this->article_id,"art_description",$this->def_desc[$this->clang]);
+
+    // EXTENSION POINT
+    $desc = rex_register_extension_point('REXSEO_META_DESCRIPTION', $desc, array('article_id'=>$this->article_id,'default'=>$this->def_desc[$this->clang]));
+
     $desc = str_replace(array("\r","\n"),' ',$desc);
     $desc = trim($desc);
 
