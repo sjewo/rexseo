@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x/4.5.x
- * @version 1.6.0
+ * @version 1.6.1
  */
 
 // GET PARAMS
