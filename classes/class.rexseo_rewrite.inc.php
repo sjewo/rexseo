@@ -785,7 +785,7 @@ function rexseo_appendToPath($path, $name, $article_id, $clang)
     }
 
     // SANITIZE LAST CHARACTER
-    $name = rtrim($name,'-');
+    $name = preg_replace('/([^-]+)-*/i', '$1', $name);
 
     $path .= $name.'/';
   }
@@ -804,7 +804,7 @@ function rexseo_parse_article_name($name)
   global $REX;
 
   // SANITIZE LAST CHARACTER
-  $name = rtrim($name,'-');
+  $name = preg_replace('/([^-]+)-*/i', '$1', $name);
 
   return
     // + durch - ersetzen
