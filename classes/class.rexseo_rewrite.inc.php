@@ -561,8 +561,12 @@ function rexseo_generate_pathlist($data = false, $clear_pathlist = false)
   }
 
 
-  // HARDCODED PATH: REDIRECT INDEX.PHP TO START-ARTICLE
-  $REXSEO_URLS['index.php']  = array('id'  => $REX['START_ARTICLE_ID'], 'clang' => $REX['ADDON']['rexseo']['settings']['homelang'], 'status' => 301);
+  // HARDCODED PATHES: REDIRECT STARTPAGE VARIANTS
+  $REXSEO_URLS['index.php'] = array('id'  => $REX['START_ARTICLE_ID'], 'clang' => $REX['ADDON']['rexseo']['settings']['homelang'], 'status' => 301);
+  $REXSEO_URLS[''] = $REXSEO_URLS['index.php'];
+  if(count($REX['CLANG'] > 1)) {
+    $REXSEO_URLS[ $REX['CLANG'][ $REX['ADDON']['rexseo']['settings']['homelang'] ] ] = $REXSEO_URLS['index.php'];
+  }
 
   foreach($data as $k => $v)
   {
