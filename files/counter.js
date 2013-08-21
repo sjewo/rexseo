@@ -10,7 +10,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x/4.5.x
- * @version 1.6.1
+ * @version 1.6.2
  */
 
 jQuery(function($){

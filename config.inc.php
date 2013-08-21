@@ -11,7 +11,7 @@
  * @author markus.staab[at]redaxo[dot]de Markus Staab
  *
  * @package redaxo 4.3.x/4.4.x/4.5.x
- * @version 1.6.1
+ * @version 1.6.2
  */
 
 // ADDON PARAMS
@@ -21,7 +21,7 @@ $myroot = $REX['INCLUDE_PATH'].'/addons/'.$myself;
 
 $REX['ADDON']['rxid'][$myself]        = '750';
 $REX['ADDON']['name'][$myself]        = 'RexSEO';
-$REX['ADDON']['version'][$myself]     = '1.6.1';
+$REX['ADDON']['version'][$myself]     = '1.6.2';
 $REX['ADDON']['author'][$myself]      = 'Markus Staab, Wolfgang Huttegger, Dave Holloway, Jan Kristinus, jdlx';
 $REX['ADDON']['supportpage'][$myself] = 'forum.redaxo.de';
 $REX['ADDON']['perm'][$myself]        = $myself.'[]';
