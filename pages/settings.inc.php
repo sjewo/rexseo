@@ -16,33 +16,11 @@
 
 // MAIN PARAMS
 ////////////////////////////////////////////////////////////////////////////////
-$myself  = rex_request('page',            'string');
-$subpage = rex_request('subpage',         'string');
-$func    = rex_request('func',            'string');
-$backup  = $REX['INCLUDE_PATH'].'/backup/addons/rexseo/config.inc.php';
-$table   = $REX['TABLE_PREFIX'].'rexseo_redirects';
-
-// SETTINGS PARAMS
-////////////////////////////////////////////////////////////////////////////////
-$CAST = array (
-      'page'                       => 'unset',
-      'subpage'                    => 'unset',
-      'func'                       => 'unset',
-      'submit'                     => 'unset',
-      'sendit'                     => 'unset',
-      'def_desc'                   => 'array',
-      'def_keys'                   => 'array',
-      'homeurl'                    => 'int',
-      'homelang'                   => 'int',
-      'allow_articleid'            => 'int',
-      'levenshtein'                => 'int',
-      'alert_setup'                => 'int',
-      'first_run'                  => 'int',
-      'rewrite_params'             => 'int',
-      'hide_langslug'              => 'int',
-      'compress_pathlist'          => 'int',
-      'urlencode'                  => 'int',
-      );
+$myself     = rex_request('page',            'string');
+$subpage    = rex_request('subpage',         'string');
+$func       = rex_request('func',            'string');
+$old_backup = $REX['INCLUDE_PATH'].'/backup/addons/rexseo/config.inc.php';
+$table      = $REX['TABLE_PREFIX'].'rexseo_redirects';
 
 
 // RUN REDIRECTS CACHER
@@ -57,53 +35,11 @@ if(OOPlugin::isAvailable('rexseo','redirects_manager')){
 rexseo_setup_metainfo();
 
 
-// UPDATE/SAVE SETTINGS
+// RESTORE SETTINGS FROM OLD BACKUP FILE
 ////////////////////////////////////////////////////////////////////////////////
-if ($func == 'update')
+if($REX['ADDON'][$myself]['settings']['first_run'] == 1 && file_exists($old_backup))
 {
-  // NO BACKUP FILE -> INSTALL
-  if(!file_exists($backup))
-  {
-    $source = $REX['INCLUDE_PATH'].'/addons/'.$myself.'/install/backup/';
-    $target = $REX['INCLUDE_PATH'].'/';
-    rexseo_recursive_copy($source, $target);
-  }
-
-  // GET ADDON SETTINGS FROM REQUEST
-  $myCONF = rexseo_batch_cast($_POST,$CAST);
-
-  // UPDATE REX
-  $REX['ADDON'][$myself]['settings'] = $myCONF;
-
-  // SAVE ADDON SETTINGS
-  $DYN    = '$REX["ADDON"]["'.$myself.'"]["settings"] = '.stripslashes(var_export($myCONF,true)).';';
-  $config = $REX['INCLUDE_PATH'].'/addons/'.$myself.'/config.inc.php';
-  rex_replace_dynamic_contents($config, $DYN);
-  rex_replace_dynamic_contents($backup, $DYN);
-  rexseo_generate_pathlist('');
-  echo rex_info('Einstellungen wurden gespeichert, Pathlist wurde aktuallisiert.');
-}
-
-
-// FIRST RUN NOTIFY
-////////////////////////////////////////////////////////////////////////////////
-if($REX['ADDON'][$myself]['settings']['alert_setup'] == 1)
-{
-  echo rex_warning('WICHTIG: RexSEO erfordert f&uuml;r den Betrieb zwingend Anpassungen, die im Kapitel <a href="index.php?page=rexseo&subpage=help&chapter=&func=setup_alert_disable&highlight=Quickstart">Quickstart</a> der Hilfe beschrieben sind. <em>(Diese Meldung verschwindet - unabh&auml;ngig davon ob RexSEO schonmal installiert war - erst wenn die Quickstart Seite einmal aufgesucht wurde.)</em>');
-
-  $subdir = rexseo_subdir();
-  if($subdir != '')
-  {
-    echo rex_warning('HINWEIS: Redaxo scheint in einem Unterordner installiert zu sein (./'.$subdir.') - dieser muß in der .htaccess entsprechend <a href="index.php?page=rexseo&subpage=help&chapter=&func=alert_setup&highlight='.urlencode('Installation in Unterverzeichnissen:').'">eingetragen</a> werden!');
-  }
-}
-
-
-// RESTORE SETTINGS FROM BACKUP FILE
-////////////////////////////////////////////////////////////////////////////////
-if($REX['ADDON'][$myself]['settings']['first_run'] == 1 && file_exists($backup))
-{
-  require_once $backup;
+  require_once $old_backup;
   echo rex_info('Daten wurden aus Backup ins Formular &uuml;bernommen - bitte Einstellungen speichern!');
 
   // IMPORT REDIRECTS FROM BACKUP CONFIG TO DB
@@ -140,6 +76,76 @@ if($REX['ADDON'][$myself]['settings']['first_run'] == 1 && file_exists($backup))
     {
       echo rex_info('Weiterleitungen wurden aus Backup in die DB importiert.');
     }
+  }
+}
+
+
+// UPDATE/SAVE SETTINGS
+////////////////////////////////////////////////////////////////////////////////
+if ($func == 'update')
+{
+  $CAST = array (
+        'page'                       => 'unset',
+        'subpage'                    => 'unset',
+        'func'                       => 'unset',
+        'submit'                     => 'unset',
+        'sendit'                     => 'unset',
+        'def_desc'                   => 'array',
+        'def_keys'                   => 'array',
+        'homeurl'                    => 'int',
+        'homelang'                   => 'int',
+        'allow_articleid'            => 'int',
+        'levenshtein'                => 'int',
+        'alert_setup'                => 'int',
+        'first_run'                  => 'int',
+        'rewrite_params'             => 'int',
+        'hide_langslug'              => 'int',
+        'compress_pathlist'          => 'int',
+        'urlencode'                  => 'int',
+        );
+
+  $settings                = rexseo_batch_cast($_POST,$CAST);
+  $settings['alert_setup'] = 0;
+  $user_prefs              = $REX['INCLUDE_PATH'].'/data/addons/'.$myself.'/'.$myself.'.settings.php';
+  $content                 = '<?php'.PHP_EOL.PHP_EOL;
+
+  $it = new RecursiveIteratorIterator( new RecursiveArrayIterator($settings) );
+  foreach ($it as $k => $v) {
+    $path = '['.var_export(stripslashes($k), true).']';
+    $depth = $it->getDepth();
+    while($depth > 0) {
+      $depth--;
+      $path = '['.var_export(stripslashes($it->getSubIterator($depth)->key()), true).']'.$path;
+    }
+    $content .= '$REX["ADDON"]["'.$myself.'"]["settings"]'.$path.' = '.var_export(stripslashes($v), true).';'.PHP_EOL;
+  }
+
+  if(!file_exists(dirname($user_prefs))) {
+    mkdir(dirname($user_prefs), $REX['DIRPERM'], true);
+  }
+
+  if(rex_put_file_contents($user_prefs, $content)) {
+    if(file_exists($old_backup)) {
+      unlink($old_backup);
+    }
+    echo rex_info('Settings saved');
+    include $user_prefs;
+  }else{
+    echo rex_warning('Failed to save settings');
+  }
+}
+
+
+// FIRST RUN NOTIFY
+////////////////////////////////////////////////////////////////////////////////
+if($REX['ADDON'][$myself]['settings']['alert_setup'] == 1)
+{
+  echo rex_warning('WICHTIG: RexSEO erfordert f&uuml;r den Betrieb zwingend Anpassungen, die im Kapitel <a href="index.php?page=rexseo&subpage=help&chapter=&func=setup_alert_disable&highlight=Quickstart">Quickstart</a> der Hilfe beschrieben sind. <em>(Diese Meldung verschwindet - unabh&auml;ngig davon ob RexSEO schonmal installiert war - erst wenn die Quickstart Seite einmal aufgesucht wurde.)</em>');
+
+  $subdir = rexseo_subdir();
+  if($subdir != '')
+  {
+    echo rex_warning('HINWEIS: Redaxo scheint in einem Unterordner installiert zu sein (./'.$subdir.') - dieser muß in der .htaccess entsprechend <a href="index.php?page=rexseo&subpage=help&chapter=&func=alert_setup&highlight='.urlencode('Installation in Unterverzeichnissen:').'">eingetragen</a> werden!');
   }
 }
 

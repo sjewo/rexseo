@@ -48,9 +48,8 @@ if(!isset($_SERVER['REQUEST_URI']))
 require_once $myroot.'/functions/function.rexseo_helpers.inc.php';
 
 
-// USER SETTINGS
+// DEFAULT SETTINGS
 ////////////////////////////////////////////////////////////////////////////////
-// --- DYN
 $REX["ADDON"]["rexseo"]["settings"] = array (
   'rexseo_version' => $REX['ADDON']['version'][$myself],
   'first_run' => 1,
@@ -83,7 +82,14 @@ $REX["ADDON"]["rexseo"]["settings"] = array (
 Disallow:',
   'expert_settings' => 0,
 );
-// --- /DYN
+
+
+// EXTERNAL USER SETTINGS
+////////////////////////////////////////////////////////////////////////////////
+$user_prefs = $REX['INCLUDE_PATH'].'/data/addons/'.$myself.'/'.$myself.'.settings.php';
+if(file_exists($user_prefs)) {
+  require_once $user_prefs;
+}
 
 
 // RUN ON ADDONS INLCUDED
