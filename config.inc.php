@@ -95,7 +95,11 @@ if(file_exists($user_prefs)) {
 // RUN ON ADDONS INLCUDED
 ////////////////////////////////////////////////////////////////////////////////
 if(!$REX['SETUP']){
-  rex_register_extension('ADDONS_INCLUDED','rexseo_init');
+  if(defined('REX_EXTENSION_EARLY')) {
+    rex_register_extension('ADDONS_INCLUDED','rexseo_init', '', REX_EXTENSION_EARLY);
+  } else {
+    rex_register_extension('ADDONS_INCLUDED','rexseo_init');
+  }
 }
 
 if(!function_exists('rexseo_init')){
