@@ -20,7 +20,7 @@ $myself            = 'rexseo';
 $myroot            = $REX['INCLUDE_PATH'].'/addons/'.$myself;
 
 $minimum_REX       = '4.3.0';
-$minimum_PHP       = 5;
+$minimum_PHP       = '5.3.0';
 $required_addons   = array('textile','metainfo');
 $disable_addons    = array('url_rewrite');
 $htaccess_search   = array('x-mapp-php','php-cgi_wrapper');
