@@ -26,7 +26,7 @@ class rexseo_robots
   public function rexseo_robots()
   {
     global $REX;
-    $this->host = $REX['SERVER'];
+    $this->host = rtrim($REX['SERVER'],'/').'/';
     $this->robots_txt = 'User-agent: *
     Disallow:';
   }
@@ -39,7 +39,7 @@ class rexseo_robots
    */
   public function setHost($host)
   {
-    $this->host = rtrim($host,'/');
+    $this->host = rtrim($host,'/').'/';
   }
 
 
@@ -61,7 +61,7 @@ class rexseo_robots
    */
   public function addSitemapLink()
   {
-    $this->robots_txt .= PHP_EOL.'Sitemap: '.$this->host.'sitemap.xml';
+    $this->robots_txt = 'Sitemap: '.$this->host.'sitemap.xml'.PHP_EOL.PHP_EOL.$this->robots_txt;
   }
 
 
