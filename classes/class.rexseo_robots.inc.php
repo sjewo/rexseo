@@ -83,6 +83,10 @@ class rexseo_robots
   {
     $robots = self::get();
 
+    while(ob_get_level()){
+      ob_end_clean();
+    }
+
     header('Content-Type: text/plain; charset=UTF-8');
     header('Content-Length: '.strlen($robots));
     echo $robots;
