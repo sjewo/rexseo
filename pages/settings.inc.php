@@ -133,6 +133,7 @@ if ($func == 'update')
   }else{
     echo rex_warning('Failed to save settings');
   }
+  rexseo_generate_pathlist('');
 }
 
 
