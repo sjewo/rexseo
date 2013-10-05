@@ -36,6 +36,8 @@ if(!$REX['REDAXO'] && $REX["ADDON"]["redirects_manager"]["settings"]['register_4
   rex_register_extension('REXSEO_ARTICLE_ID_NOT_FOUND','rexseo_register_404');
   function rexseo_register_404($params)
   {
+    global $REX;
+    
     $db      = rex_sql::factory();
     $request = mysql_real_escape_string($params['request']);
     $db->setQuery( 'SELECT * FROM `rex_rexseo_redirects` WHERE `from_url`=\''.$request.'\';');
