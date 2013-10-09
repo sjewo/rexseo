@@ -103,6 +103,9 @@ if(!function_exists('rexseo_init')){
   {
     global $REX;
 
+    // CONTROLLER
+    include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
+
     // MAIN
     require_once $REX['INCLUDE_PATH'].'/addons/rexseo/classes/class.rexseo_meta.inc.php';
 
@@ -122,9 +125,6 @@ if(!function_exists('rexseo_init')){
         rex_register_extension('GENERATE_FILTER', 'rexseo_fix_42x_links');
       }
     }
-
-    // CONTROLLER
-    include $REX['INCLUDE_PATH'].'/addons/rexseo/controller.inc.php';
 
     // REXSEO POST INIT
     rex_register_extension_point('REXSEO_INCLUDED');
