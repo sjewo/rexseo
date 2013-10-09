@@ -126,13 +126,6 @@ class RexseoRewrite
       }
 
 
-      // TRIM ANCHORS
-      if(($pos = strpos($path, '#')) !== false)
-      {
-        $path = substr($path, 0, $pos);
-      }
-
-
       // RESOLVE REWRITTEN PARAMS -> POPULATE GET/REQUEST GLOBALS
       if($this->use_params_rewrite && strstr($path,$params_starter.'/'))
       {
